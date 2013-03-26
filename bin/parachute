@@ -5,7 +5,7 @@ process.title = 'parachute';
 var nopt = require('nopt');
 var path = require('path');
 
-var pkg        = require(path.join(__dirname, '..', 'package.json'));
+var pkg = require(path.join(__dirname, '..', 'package.json'));
 
 var knownOpts  = { version: Boolean };
 var shortHands = { 'v': ['--version'] };
