@@ -1,0 +1,32 @@
+{
+  "name": "parachute",
+  "description": "Simple assets delivery across your apps.",
+  "version": "0.0.1",
+  "author": "Jico Baligod",
+  "licenses": [],
+  "main": "lib",
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "dependencies": {
+    "colors":   "0.6.0-1",
+    "gift":     "0.0.5",
+    "hogan.js": "2.0.0",
+    "lodash":   "1.0.1",
+    "mkdirp":   "0.3.5",
+    "ncp":      "0.4.2",
+    "nopt":     "2.1.1",
+    "rimraf":   "2.1.4"
+  },
+  "devDependencies": {
+    "coffee-script": "1.6.2",
+    "mocha":  "1.8.2",
+    "expect.js": "0.2.0"
+  },
+  "bin": {
+    "parachute": "bin/parachute"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec --timeout 40000"
+  }
+}

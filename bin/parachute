@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+process.title = 'parachute';
+
+var nopt = require('nopt');
+var path = require('path');
+
+var pkg        = require(path.join(__dirname, '..', 'package.json'));
+
+var knownOpts  = { version: Boolean };
+var shortHands = { 'v': ['--version'] };
+var options    = nopt(knownOpts, shortHands, process.argv, 2);
+
+if (options.version) return console.log('parachute: ' + pkg.version);
