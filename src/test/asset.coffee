@@ -5,6 +5,22 @@ rimraf = require('rimraf')
 
 describe 'Asset', ->
   remoteDependency = 'git@foo.com:bar/baz.git'
+  testDir = "#{__dirname}/install_test"
+
+  clean = (done) ->
+    rimraf testDir, (err) ->
+      throw new Error('Unable to remove install directory') if err
+      done() if done?()
+
+  beforeEach (done) ->
+    clean ->
+      fs.mkdirSync testDir
+      process.chdir testDir
+      done() if done?()
+
+  after ->
+    process.chdir '../'
+    clean()
 
   describe 'instance variables', ->
     it 'sets the source URL', (done) ->
@@ -39,36 +55,80 @@ describe 'Asset', ->
       done()
 
   describe '#cache', ->
-    testDir = "#{__dirname}/install_test"
-
-    clean = (done) ->
-      rimraf testDir, (err) ->
-        console.log err
-        throw new Error('Unable to remove install directory') if err
-        done() if done?()
-
-    beforeEach (done) ->
-      clean ->
-        fs.mkdirSync testDir
-        process.chdir testDir
-        done() if done?()
-
-    after ->
-      process.chdir '../'
-      clean()
-
     it 'emits a cached event', (done) ->
       asset = new Asset('../repos/without_json')
+      asset.on 'error', (err) -> throw err
+      asset.on 'cached', (status) ->
+        expect(status).to.be(0)
+        done()
       asset.cache()
-        .on 'error', (err) ->
-          throw err
-        .on 'cached', (status) ->
-          expect(status).to.be(0)
-          done()
 
     it 'clones the asset source into the cache directory', (done) ->
       asset = new Asset('../repos/without_json')
       expect(fs.existsSync('.parachute/repos-without_json')).to.be(false)
-      asset.cache().on 'cached', (status) ->
+      asset.cache (status) ->
         expect(fs.existsSync('.parachute/repos-without_json')).to.be(true)
         done()
+
+  describe '#isCached', ->
+    it 'determines if the Asset has been cached', (done) ->
+      asset = new Asset('../repos/without_json')
+      expect(asset.isCached()).to.be(false)
+      asset.cache (status) ->
+        expect(asset.isCached()).to.be(true)
+        rimraf asset.cacheDir, (err) ->
+          expect(asset.isCached()).to.be(false)
+          done()
+
+  describe '#copy', ->
+    it 'returns an error if asset is not cached', (done) ->
+      asset = new Asset('../repos/without_json')
+      asset.on 'error', (err) ->
+        expect(err.message).to.eql('asset is not cached')
+        done()
+      asset.copy()
+
+    it 'emits a copied event', (done) ->
+      asset = new Asset('../repos/without_json')
+      asset.cache (status) ->
+        asset
+          .on 'copied', (status) ->
+            expect(status).to.be(0)
+            done()
+          .on 'error', (err) -> throw err
+        asset.copy()
+
+    it 'copies all cache contents if no source assets.json exists', (done) ->
+      asset = new Asset('../repos/without_json')
+      asset.on 'error', (err) -> throw err
+      asset.cache ->
+        asset.copy ->
+          expect(fs.existsSync('should-copy.txt')).to.be(true)
+          expect(fs.existsSync('css/core.css')).to.be(true)
+          done()
+
+    it 'copies cache contents according to assets.json when present', (done) ->
+      asset = new Asset('../repos/with_json')
+      asset.on 'error', (err) -> throw err
+      asset.cache ->
+        asset.copy ->
+          expect(fs.existsSync('should-not-copy.txt')).to.be(false)
+          expect(fs.existsSync('css/core.css')).to.be(false)
+          expect(fs.existsSync('css/shared/core.css')).to.be(true)
+          done()
+
+    it 'does not copy ignored files from cache', (done) ->
+      asset = new Asset('../repos/without_json')
+      asset.on 'error', (err) -> throw err
+      asset.cache ->
+        asset.copy ->
+          expect(fs.existsSync("#{process.cwd()}/.git")).to.be(false)
+          done()
+
+    it 'allows a set of variable interpolation within assets.json', (done) ->
+      asset = new Asset('../repos/with_variables')
+      asset.on 'error', (err) -> throw err
+      asset.cache ->
+        asset.copy ->
+          expect(fs.existsSync("css/install_test/core.css")).to.be(true)
+          done()

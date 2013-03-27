@@ -3,7 +3,6 @@ spawn  = require('child_process').spawn
 config = require('../core/config')
 
 module.exports = (args, options) ->
-  console.log('git-wrapper')
   options = options || {}
   options =
     cwd: options.cwd || process.cwd()
