@@ -11,4 +11,20 @@ var knownOpts  = { version: Boolean };
 var shortHands = { 'v': ['--version'] };
 var options    = nopt(knownOpts, shortHands, process.argv, 2);
 
+var parachute     = require('../lib');
+parachute.version = pkg.version
+
 if (options.version) return console.log('parachute: ' + pkg.version);
+
+command = options.argv.remain && options.argv.remain.shift();
+
+parachute.commands[command]()
+  .on('data', function(data) {
+    if (data) process.stdout.write(data);
+  })
+  .on('end', function(data) {
+    if (data) process.stdout.write(data);
+  })
+  .on('error', function(err) {
+    process.stdout.write(err);
+  });

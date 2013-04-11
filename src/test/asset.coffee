@@ -4,23 +4,26 @@ expect = require('expect.js')
 rimraf = require('rimraf')
 
 describe 'Asset', ->
+  cwd              = process.cwd()
   remoteDependency = 'git@foo.com:bar/baz.git'
-  testDir = "#{__dirname}/install_test"
+  testDir          = "#{__dirname}/install_test"
 
   clean = (done) ->
     rimraf testDir, (err) ->
       throw new Error('Unable to remove install directory') if err
-      done() if done?()
+      done?()
 
   beforeEach (done) ->
+    process.chdir cwd
     clean ->
-      fs.mkdirSync testDir
-      process.chdir testDir
-      done() if done?()
+      fs.mkdir testDir, (err) ->
+        throw err if err
+        process.chdir testDir
+        done?()
 
-  after ->
-    process.chdir '../'
-    clean()
+  after (done) ->
+    process.chdir cwd
+    clean(done)
 
   describe 'instance variables', ->
     it 'sets the source URL', (done) ->

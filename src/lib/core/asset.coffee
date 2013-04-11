@@ -17,12 +17,14 @@ class Asset extends EventEmitter
     @cacheDir  = "#{process.cwd()}/.parachute/#{@name}"
     @targetDir = target || process.cwd()
     @remote    = pathSegments[1]? || pathSegments[2]?
+    @source    = path.resolve(@source) unless @remote
 
   cache: (callback) ->
+    # TODO: Check if @source is local and exists
     cp = git(['clone', @source, @cacheDir])
     cp.on 'exit', (status) =>
       @emit 'cached', status
-      callback(status) if callback?()
+      callback?(status)
 
   copy: (callback) ->
     if @isCached()
@@ -38,40 +40,43 @@ class Asset extends EventEmitter
   # Pseudo-private functions
 
   customCopy: (callback) ->
-    componentsJson = require("#{@cacheDir}/assets.json")
+    componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
     components     = componentsJson.components
 
     if components?.length
-      count = 0
-      tick = ->
-        count++
-        if count == components.length && callback?()
+      next = (err) =>
+        throw err if err
+        if components.length
+          copyNextComponent()
+        else
           @emit 'copied', 0
-          callback(0) if callback?()
+          callback?(0)
 
-      for component in components
-        source = path.join @cacheDir, component.source
-        target = @subVariables(path.join process.cwd(), component.target)
-
-        fs.exists target, (targetExists) =>
-          if targetExists
-            @ncp source, target, tick
+      copyNextComponent = =>
+        component = components.shift()
+        source    = path.join @cacheDir, component.source
+        dest      = @subVariables path.resolve(path.join(@targetDir, component.target))
+        fs.exists dest, (destExists) =>
+          if destExists
+            @ncp source, dest, next
           else
-            mkdirp target, (err) =>
+            mkdirp dest, (err) =>
               throw err if err
-              @ncp source, target, tick
+              @ncp source, dest, next
+
+      copyNextComponent()
     else
       @fullCopy(callback)
 
   fullCopy: (callback) ->
     fs.exists @targetDir, (exists) =>
       mkdirp.sync(@targetDir) unless exists
-      @ncp @cacheDir, @targetDir, =>
+      @ncp @cacheDir, @targetDir, (err) =>
         @emit 'copied', 0
-        callback(0) if callback?()
+        callback?(0)
 
   ncp: (source, dest, callback) ->
-    ignore  = [/\.git/, 'assets.json']
+    ignore  = [/\.git/, /assets.json/]
     options =
       clobber: true
       filter: (filename) ->
@@ -81,13 +86,10 @@ class Asset extends EventEmitter
 
     ncp source, dest, options, (err) =>
       throw err if err
-      callback(0) if callback?()
+      callback?(0)
 
   subVariables: (string) ->
-    matches = string.match(/{{(\w+)}}/g)
-    return string unless matches
-
-    for variable in matches
+    for variable in string.match(/{{(\w+)}}/g) || []
       key = variable.slice(2, -2)
       string = string.replace(variable, assetVars[key])
     string
