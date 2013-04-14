@@ -18,9 +18,12 @@ module.exports = (dependencies) ->
     asset = new Asset(dependency.source, path.resolve(dependency.target))
 
     asset.on 'data', emitter.emit.bind(emitter, 'data')
-
-    asset.once 'cached', asset.copy
     asset.once 'copied', tick
-    asset.cache() unless asset.isCached()
+
+    if asset.isCached()
+      asset.copy()
+    else
+      asset.once 'cached', asset.copy
+      asset.cache()
 
   return emitter
