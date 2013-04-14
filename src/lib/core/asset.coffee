@@ -1,6 +1,7 @@
 { EventEmitter } = require('events')
 assetVars        = require('./asset_vars')
 git              = require('../util/git-wrapper')
+template         = require('../util/template')
 fs               = require('fs')
 mkdirp           = require('mkdirp')
 ncp              = require('ncp')
@@ -20,6 +21,8 @@ class Asset extends EventEmitter
     @source    = path.resolve(@source) unless @remote
 
   cache: (callback) ->
+    template('action', { doing: 'caching', what: @source })
+      .on 'data', @emit.bind(@, 'data')
     # TODO: Check if @source is local and exists
     cp = git(['clone', @source, @cacheDir])
     cp.on 'exit', (status) =>
@@ -31,6 +34,8 @@ class Asset extends EventEmitter
       fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
         copyType = if hasJson then 'custom' else 'full'
         @["#{copyType}Copy"](callback)
+        template('action', { doing: 'copying', what: @source })
+          .on 'data', @emit.bind(@, 'data')
     else
       @emit 'error', message: 'asset is not cached'
 
