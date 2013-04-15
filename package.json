@@ -1,11 +1,20 @@
 {
   "name":         "parachute",
-  "version":      "0.0.1",
+  "version":      "0.0.1-alpha",
   "description":  "Simple assets delivery across your apps.",
   "author":       "Jico Baligod <jico@baligod.com>",
-  "licenses":     [],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url":  "http://github.com/jico/parachute/raw/master/LICENSE"
+    }
+  ],
   "engines": {
     "node": ">=0.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url":  "https://github.com/jico/parachute"
   },
   "dependencies": {
     "colors":    "0.6.0-1",
