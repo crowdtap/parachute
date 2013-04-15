@@ -15,7 +15,7 @@ module.exports = (dependencies) ->
   tick  = -> emitter.emit('end', 0) if ++count == dependencies.length
 
   for dependency in dependencies
-    asset = new Asset(dependency.source, path.resolve(dependency.target))
+    asset = new Asset(dependency.source, dependency.target)
 
     asset.on 'data', emitter.emit.bind(emitter, 'data')
     asset.once 'copied', ->
