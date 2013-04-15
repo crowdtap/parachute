@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jico/parachute.png?branch=master)](https://travis-ci.org/jico/parachute)
+[![Build Status](https://travis-ci.org/jico/parachute.png)](https://travis-ci.org/jico/parachute)
 
 # Parachute
 
