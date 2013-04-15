@@ -36,8 +36,8 @@
     "parachute": "bin/parachute"
   },
   "scripts": {
-    "compile":  "./node_modules/.bin/coffee -b -o . src",
-    "test":     "./node_modules/.bin/mocha --reporter dot --timeout 40000",
-    "watch":    "./node_modules/.bin/coffee -wb -o . src"
+    "compile":  "./node_modules/.bin/coffee -bo . src",
+    "test":     "./node_modules/.bin/mocha --reporter spec --timeout 40000",
+    "watch":    "./node_modules/.bin/coffee -wbo . src"
   }
 }
