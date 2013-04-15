@@ -18,6 +18,8 @@ describe 'install', ->
   yaLocalyaSourceJson =
     source: "../repos/with_json"
     target: "some_folder"
+  withPostScript =
+    source: "../repos/with_post_scripts"
 
   clean = (done) ->
     rimraf testDir, (err) ->
@@ -86,4 +88,24 @@ describe 'install', ->
           expect(fs.existsSync('some_folder/should-not-copy.txt')).to.be(false)
           expect(fs.existsSync('some_folder/assets.json')).to.be(false)
           expect(fs.existsSync('some_folder/.git')).to.be(false)
+          done()
+
+  describe 'post scripts', ->
+    it 'does not copy post_scripts directory', (done) ->
+      install([withPostScript])
+        .on 'error', (err) ->
+          throw err
+        .on 'end', (status) ->
+          expect(fs.existsSync('post_scripts')).to.be(false)
+          done()
+
+    it 'runs post scripts after install', (done) ->
+      expect(fs.existsSync('post_script_1.txt')).to.be(false)
+      expect(fs.existsSync('post_script_2.txt')).to.be(false)
+      install([withPostScript])
+        .on 'error', (err) ->
+          throw err
+        .on 'end', (status) ->
+          expect(fs.existsSync('post_script_1.txt')).to.be(true)
+          expect(fs.existsSync('post_script_2.txt')).to.be(true)
           done()

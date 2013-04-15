@@ -1,5 +1,6 @@
 /lib
 /test/*.js
+/test/*_test
 /node_modules
 
 .DS_Store

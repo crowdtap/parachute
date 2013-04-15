@@ -18,7 +18,12 @@ module.exports = (dependencies) ->
     asset = new Asset(dependency.source, path.resolve(dependency.target))
 
     asset.on 'data', emitter.emit.bind(emitter, 'data')
-    asset.once 'copied', tick
+    asset.once 'copied', ->
+      if asset.hasPostScripts()
+        asset.on 'post_scripts_complete', tick
+        asset.runPostScripts()
+      else
+        tick()
 
     if asset.isCached()
       asset.copy()

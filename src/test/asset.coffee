@@ -135,3 +135,51 @@ describe 'Asset', ->
         asset.copy ->
           expect(fs.existsSync("css/install_test/core.css")).to.be(true)
           done()
+
+  describe '#hasPostScripts', ->
+    it 'returns false if cached repo has no post_scripts folder', (done) ->
+      asset = new Asset('../repos/without_json')
+      asset.cache ->
+        expect(asset.hasPostScripts()).to.be(false)
+        done()
+
+    it 'returns true if cached repo has post_scripts folder', (done) ->
+      asset = new Asset('../repos/with_post_scripts')
+      asset.cache ->
+        expect(asset.hasPostScripts()).to.be(true)
+        done()
+
+    it 'emits an error if repo is not cached', (done) ->
+      asset = new Asset('../repos/with_post_scripts')
+      asset.on 'error', (err) ->
+        expect(err.message).to.eql('asset is not cached')
+        done()
+      asset.hasPostScripts()
+
+  describe '#runPostScripts', ->
+    it 'emits a post_scripts_complete event', (done) ->
+      asset = new Asset('../repos/with_post_scripts')
+      asset.on 'error', (err) -> throw err
+      asset.cache ->
+        asset.copy ->
+          asset.on 'post_scripts_complete', ->
+            done()
+          asset.runPostScripts()
+
+    it 'emits an error if asset is not cached', (done) ->
+      asset = new Asset('../repos/with_post_scripts')
+      asset.on 'error', (err) ->
+        expect(err.message).to.eql('asset is not cached')
+        done()
+      asset.runPostScripts()
+
+    it 'runs all scripts within the post_scripts folder', (done) ->
+      asset = new Asset('../repos/with_post_scripts')
+      asset.on 'error', (err) -> throw err
+      asset.cache ->
+        asset.copy ->
+          asset.on 'post_scripts_complete', ->
+            expect(fs.existsSync('post_script_1.txt')).to.be(true)
+            expect(fs.existsSync('post_script_2.txt')).to.be(true)
+            done()
+          asset.runPostScripts()

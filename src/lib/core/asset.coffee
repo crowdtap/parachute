@@ -6,6 +6,7 @@ fs               = require('fs')
 mkdirp           = require('mkdirp')
 ncp              = require('ncp')
 path             = require('path')
+spawn            = require('child_process').spawn
 
 class Asset extends EventEmitter
   constructor: (@source, target) ->
@@ -39,8 +40,31 @@ class Asset extends EventEmitter
     else
       @emit 'error', message: 'asset is not cached'
 
+  hasPostScripts: ->
+    if @isCached()
+      fs.existsSync path.join(@cacheDir, 'post_scripts')
+    else
+      @emit 'error', message: 'asset is not cached'
+
   isCached: ->
     fs.existsSync(@cacheDir)
+
+  runPostScripts: ->
+    if @isCached()
+      postScriptsDir = path.join @cacheDir, 'post_scripts'
+      scripts_queue  = fs.readdirSync postScriptsDir
+
+      do execNextScript = =>
+        if (filename = scripts_queue.shift())?
+          filepath = path.join(postScriptsDir, filename)
+          if fs.statSync(filepath).isFile()
+            template('action', { doing: 'post script', what: filename })
+              .on 'data', @emit.bind(@, 'data')
+            spawn('sh', [filepath]).on('exit', execNextScript)
+        else
+          @emit 'post_scripts_complete'
+    else
+      @emit 'error', message: 'asset is not cached'
 
   # Pseudo-private functions
 
@@ -81,7 +105,7 @@ class Asset extends EventEmitter
         callback?(0)
 
   ncp: (source, dest, callback) ->
-    ignore  = [/\.git/, /assets.json/]
+    ignore  = [/\.git/, /assets.json/, /post_scripts/]
     options =
       clobber: true
       filter: (filename) ->

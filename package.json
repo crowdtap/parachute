@@ -1,10 +1,9 @@
 {
   "name":         "parachute",
-  "description":  "Simple assets delivery across your apps.",
   "version":      "0.0.1",
-  "author":       "Jico Baligod",
+  "description":  "Simple assets delivery across your apps.",
+  "author":       "Jico Baligod <jico@baligod.com>",
   "licenses":     [],
-  "main":         "lib",
   "engines": {
     "node": ">=0.8.0"
   },
@@ -23,6 +22,7 @@
     "mocha":          "1.8.2",
     "expect.js":      "0.2.0"
   },
+  "main": "lib",
   "bin": {
     "parachute": "bin/parachute"
   },

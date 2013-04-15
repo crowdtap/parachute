@@ -1,3 +1,3 @@
 # Parachute
 
-A simpler way to deliver assets.
+A simple way to deliver shared assets across apps.
