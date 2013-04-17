@@ -93,6 +93,15 @@ describe 'Asset', ->
         done()
       asset.copy()
 
+    it 'returns an error if asset cache is dirty', (done) ->
+      asset = new Asset('../repos/without_json')
+      asset.cache ->
+        asset.on 'error', (err) ->
+          expect(err.message).to.eql('asset cache is dirty')
+          done()
+        fs.unlinkSync "#{process.env['HOME']}/.parachute/repos-without_json/should-copy.txt"
+        asset.copy()
+
     it 'emits a copied event', (done) ->
       asset = new Asset('../repos/without_json')
       asset.cache (status) ->

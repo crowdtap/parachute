@@ -3,6 +3,7 @@ assetVars        = require('./asset_vars')
 git              = require('../util/git-wrapper')
 template         = require('../util/template')
 fs               = require('fs')
+gift             = require('gift')
 mkdirp           = require('mkdirp')
 ncp              = require('ncp')
 path             = require('path')
@@ -20,6 +21,7 @@ class Asset extends EventEmitter
     @targetDir = target || process.cwd()
     @remote    = pathSegments[1]? || pathSegments[2]?
     @source    = path.resolve(@source) unless @remote
+    @repo      = gift @cacheDir
 
   cache: (callback) ->
     template('action', { doing: 'caching', what: @source })
@@ -32,11 +34,15 @@ class Asset extends EventEmitter
 
   copy: (callback) ->
     if @isCached()
-      fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
-        copyType = if hasJson then 'custom' else 'full'
-        @["#{copyType}Copy"](callback)
-        template('action', { doing: 'copying', what: @source })
-          .on 'data', @emit.bind(@, 'data')
+      @repo.status (err, status) =>
+        if status.clean
+          fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
+            copyType = if hasJson then 'custom' else 'full'
+            @["#{copyType}Copy"](callback)
+            template('action', { doing: 'copying', what: @source })
+              .on 'data', @emit.bind(@, 'data')
+        else
+          @emit 'error', message: 'asset cache is dirty'
     else
       @emit 'error', message: 'asset is not cached'
 
