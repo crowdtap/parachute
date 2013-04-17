@@ -8,6 +8,8 @@ describe 'install', ->
   cwd     = process.cwd()
   testDir = "#{__dirname}/install_test"
 
+  process.env['HOME'] = testDir
+
   noLocalnoSourceJson =
     source: "../repos/without_json"
   yaLocalnoSourceJson =

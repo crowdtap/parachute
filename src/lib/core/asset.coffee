@@ -16,7 +16,7 @@ class Asset extends EventEmitter
     pathSegments = @source.match(gitRegex)
 
     @name      = pathSegments[4].replace('/','-').replace('.git','')
-    @cacheDir  = "#{process.cwd()}/.parachute/#{@name}"
+    @cacheDir  = path.join(process.env['HOME'], '.parachute', @name)
     @targetDir = target || process.cwd()
     @remote    = pathSegments[1]? || pathSegments[2]?
     @source    = path.resolve(@source) unless @remote

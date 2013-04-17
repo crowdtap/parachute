@@ -8,6 +8,8 @@ describe 'Asset', ->
   remoteDependency = 'git@foo.com:bar/baz.git'
   testDir          = "#{__dirname}/install_test"
 
+  process.env['HOME'] = testDir
+
   clean = (done) ->
     rimraf testDir, (err) ->
       throw new Error('Unable to remove install directory') if err
@@ -38,7 +40,7 @@ describe 'Asset', ->
 
     it 'sets the asset cache directory', (done) ->
       asset = new Asset(remoteDependency)
-      expect(asset.cacheDir).to.eql("#{process.cwd()}/.parachute/bar-baz")
+      expect(asset.cacheDir).to.eql("#{process.env['HOME']}/.parachute/bar-baz")
       done()
 
     it 'sets the asset target directory', (done) ->
@@ -68,9 +70,9 @@ describe 'Asset', ->
 
     it 'clones the asset source into the cache directory', (done) ->
       asset = new Asset('../repos/without_json')
-      expect(fs.existsSync('.parachute/repos-without_json')).to.be(false)
+      expect(fs.existsSync("#{process.env['HOME']}/.parachute/repos-without_json")).to.be(false)
       asset.cache (status) ->
-        expect(fs.existsSync('.parachute/repos-without_json')).to.be(true)
+        expect(fs.existsSync("#{process.env['HOME']}/.parachute/repos-without_json")).to.be(true)
         done()
 
   describe '#isCached', ->
