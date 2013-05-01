@@ -56,7 +56,9 @@ describe 'install', ->
         .on 'end', (status) ->
           expect(fs.existsSync('should-copy.txt')).to.be(true)
           expect(fs.existsSync('css/core.css')).to.be(true)
+          expect(fs.existsSync('css/other.css')).to.be(true)
           expect(fs.existsSync('.git')).to.be(false)
+          expect(fs.existsSync('.gitignore')).to.be(false)
           done()
 
     it 'saves dependencies into local target', (done) ->
@@ -66,7 +68,9 @@ describe 'install', ->
         .on 'end', (status) ->
           expect(fs.existsSync('some_folder/should-copy.txt')).to.be(true)
           expect(fs.existsSync('some_folder/css/core.css')).to.be(true)
+          expect(fs.existsSync('some_folder/css/other.css')).to.be(true)
           expect(fs.existsSync('some_folder/.git')).to.be(false)
+          expect(fs.existsSync('some_folder/.gitignore')).to.be(false)
           done()
 
   describe 'with source json', ->
