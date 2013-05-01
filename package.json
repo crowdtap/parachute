@@ -37,7 +37,7 @@
   },
   "scripts": {
     "compile":  "./node_modules/.bin/coffee -bo . src",
-    "pretest":  "bash scripts/prepare_test_repos.sh",
+    "pretest":  "bash scripts/prepare_test_repos.sh && ./node_modules/.bin/coffee -bo . src",
     "test":     "./node_modules/.bin/mocha --reporter spec --timeout 40000",
     "watch":    "./node_modules/.bin/coffee -wbo . src"
   }
