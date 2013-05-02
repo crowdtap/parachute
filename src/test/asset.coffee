@@ -134,7 +134,7 @@ describe 'Asset', ->
           .on 'error', (err) -> throw err
         asset.copy()
 
-    it 'copies all cache contents if no source assets.json exists', (done) ->
+    it 'xxx copies all cache contents if no source assets.json exists', (done) ->
       asset = new Asset('../repos/without_json')
       asset.on 'error', (err) -> throw err
       asset.cache ->
