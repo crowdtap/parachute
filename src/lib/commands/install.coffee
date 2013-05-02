@@ -11,7 +11,10 @@ module.exports = (dependencies) ->
   tick  = -> emitter.emit('end', 0) if ++count == dependencies.length
 
   for dependency in dependencies
-    asset = new Asset(dependency.source, dependency.target)
+    options =
+      files:  dependency.files
+      target: dependency.target
+    asset = new Asset(dependency.source, options)
 
     asset.on 'data',  emitter.emit.bind(emitter, 'data')
     asset.on 'error', emitter.emit.bind(emitter, 'error')

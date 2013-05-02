@@ -8,9 +8,10 @@ mkdirp           = require('mkdirp')
 ncp              = require('ncp')
 path             = require('path')
 spawn            = require('child_process').spawn
+_                = require('lodash')
 
 class Asset extends EventEmitter
-  constructor: (@source, target) ->
+  constructor: (@source, options) ->
     # Recognize git source URL parameters:
     # [original str, http(s), git@, host, trailing path]
     gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*(.*)/
@@ -18,7 +19,8 @@ class Asset extends EventEmitter
 
     @name      = pathSegments[4].replace('/','-').replace('.git','')
     @cacheDir  = path.join(process.env['HOME'], '.parachute', @name)
-    @targetDir = target || process.cwd()
+    @targetDir = options?.target || process.cwd()
+    @files     = options?.files
     @remote    = pathSegments[1]? || pathSegments[2]?
     @source    = path.resolve(@source) unless @remote
     @repo      = gift @cacheDir
@@ -31,6 +33,12 @@ class Asset extends EventEmitter
     cp.on 'exit', (status) =>
       @emit 'cached', status
       callback?(status)
+
+  sourceAssetsJson: =>
+    if fs.existsSync "#{@cacheDir}/assets.json"
+      JSON.parse(fs.readFileSync("#{@cacheDir}/assets.json")).components
+    else
+      null
 
   copy: (callback) ->
     if @isCached()
@@ -72,7 +80,14 @@ class Asset extends EventEmitter
     else
       @emit 'error', message: 'asset is not cached'
 
-  # Pseudo-private functions
+  components: ->
+    components = @files || @sourceAssetsJson() || [source: null, target: null]
+    _.map components, (component) =>
+      componentWithAbsPaths =
+        source: path.join(@cacheDir, component.source)
+        target: path.join(@targetDir, component.target)
+
+  # Private
 
   customCopy: (callback) ->
     componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
