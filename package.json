@@ -6,7 +6,7 @@
   "licenses": [
     {
       "type": "MIT",
-      "url":  "http://github.com/jico/parachute/raw/master/LICENSE"
+      "url":  "http://github.com/crowdtap/parachute/raw/master/LICENSE"
     }
   ],
   "engines": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url":  "https://github.com/jico/parachute"
+    "url":  "https://github.com/crowdtap/parachute"
   },
   "dependencies": {
     "colors":    "0.6.0-1",
