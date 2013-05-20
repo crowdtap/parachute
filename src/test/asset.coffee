@@ -45,7 +45,7 @@ describe 'Asset', ->
 
     it 'sets the asset target directory', (done) ->
       assetWithoutDirectory = new Asset(remoteDependency)
-      assetWithDirectory    = new Asset(remoteDependency, 'css')
+      assetWithDirectory    = new Asset(remoteDependency, target: 'css')
       expect(assetWithoutDirectory.targetDir).to.eql(process.cwd())
       expect(assetWithDirectory.targetDir).to.eql('css')
       done()
@@ -57,6 +57,28 @@ describe 'Asset', ->
       expect(assetRemoteSsh.remote).to.be(true)
       expect(assetRemoteHttp.remote).to.be(true)
       expect(assetLocal.remote).to.be(false)
+      done()
+
+    it 'sets the files to copy', (done) ->
+      asset = new Asset(remoteDependency, files: ['foo'])
+      expect(asset.files).to.eql(['foo'])
+      done()
+
+  describe '#components', ->
+    it 'returns the cache directory if no source json or files array', (done) ->
+      asset = new Asset(remoteDependency)
+      expect(asset.components()).to.eql([{ source: asset.cacheDir, target: asset.targetDir }])
+      done()
+
+    it 'returns the assets defined in source json if present', (done) ->
+      asset = new Asset('../repos/with_json')
+      asset.cache (status) ->
+        expect(asset.components()).to.eql([source: "#{asset.cacheDir}/css", target: "#{asset.targetDir}/css/shared"])
+        done()
+
+    it 'returns the files array if present', (done) ->
+      asset = new Asset(remoteDependency, files: [source: 'foo'])
+      expect(asset.components()).to.eql([{ source: "#{asset.cacheDir}/foo", target: asset.targetDir }])
       done()
 
   describe '#cache', ->
@@ -112,7 +134,7 @@ describe 'Asset', ->
           .on 'error', (err) -> throw err
         asset.copy()
 
-    it 'copies all cache contents if no source assets.json exists', (done) ->
+    it 'xxx copies all cache contents if no source assets.json exists', (done) ->
       asset = new Asset('../repos/without_json')
       asset.on 'error', (err) -> throw err
       asset.cache ->

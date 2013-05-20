@@ -8,9 +8,10 @@ mkdirp           = require('mkdirp')
 ncp              = require('ncp')
 path             = require('path')
 spawn            = require('child_process').spawn
+_                = require('lodash')
 
 class Asset extends EventEmitter
-  constructor: (@source, target) ->
+  constructor: (@source, options) ->
     # Recognize git source URL parameters:
     # [original str, http(s), git@, host, trailing path]
     gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*(.*)/
@@ -18,7 +19,8 @@ class Asset extends EventEmitter
 
     @name      = pathSegments[4].replace('/','-').replace('.git','')
     @cacheDir  = path.join(process.env['HOME'], '.parachute', @name)
-    @targetDir = target || process.cwd()
+    @targetDir = options?.target || process.cwd()
+    @files     = options?.files
     @remote    = pathSegments[1]? || pathSegments[2]?
     @source    = path.resolve(@source) unless @remote
     @repo      = gift @cacheDir
@@ -32,15 +34,17 @@ class Asset extends EventEmitter
       @emit 'cached', status
       callback?(status)
 
+  sourceAssetsJson: =>
+    if fs.existsSync "#{@cacheDir}/assets.json"
+      JSON.parse(fs.readFileSync("#{@cacheDir}/assets.json")).components
+
   copy: (callback) ->
     if @isCached()
       @repo.status (err, status) =>
         if status.clean
-          fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
-            copyType = if hasJson then 'custom' else 'full'
-            @["#{copyType}Copy"](callback)
-            template('action', { doing: 'copying', what: @source })
-              .on 'data', @emit.bind(@, 'data')
+          @copyComponents(callback)
+          template('action', { doing: 'copying', what: @source })
+            .on 'data', @emit.bind(@, 'data')
         else
           @emit 'error', message: 'asset cache is dirty'
     else
@@ -72,13 +76,18 @@ class Asset extends EventEmitter
     else
       @emit 'error', message: 'asset is not cached'
 
-  # Pseudo-private functions
+  components: ->
+    components = @files || @sourceAssetsJson() || [source: null, target: null]
+    _.map components, (component) =>
+      componentWithAbsPaths =
+        source: path.join(@cacheDir, component.source)
+        target: path.join(@targetDir, component.target)
 
-  customCopy: (callback) ->
-    componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
-    components     = componentsJson.components
+  # Private
 
-    if components?.length
+  copyComponents: (callback) ->
+    components = @components()
+    if components.length
       next = (err) =>
         throw err if err
         if components.length
@@ -87,28 +96,16 @@ class Asset extends EventEmitter
           @emit 'copied', 0
           callback?(0)
 
-      copyNextComponent = =>
+      copyNextComponent = do =>
         component = components.shift()
-        source    = path.join @cacheDir, component.source
-        dest      = @subVariables path.resolve(path.join(@targetDir, component.target))
+        dest      = @subVariables path.resolve(component.target)
         fs.exists dest, (destExists) =>
           if destExists
-            @ncp source, dest, next
+            @ncp component.source, dest, next
           else
             mkdirp dest, (err) =>
               throw err if err
-              @ncp source, dest, next
-
-      copyNextComponent()
-    else
-      @fullCopy(callback)
-
-  fullCopy: (callback) ->
-    fs.exists @targetDir, (exists) =>
-      mkdirp.sync(@targetDir) unless exists
-      @ncp @cacheDir, @targetDir, (err) =>
-        @emit 'copied', 0
-        callback?(0)
+              @ncp component.source, dest, next
 
   ncp: (source, dest, callback) ->
     ignore  = [/\.git/, /assets.json/, /post_scripts/]

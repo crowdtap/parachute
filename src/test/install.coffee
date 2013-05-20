@@ -56,7 +56,9 @@ describe 'install', ->
         .on 'end', (status) ->
           expect(fs.existsSync('should-copy.txt')).to.be(true)
           expect(fs.existsSync('css/core.css')).to.be(true)
+          expect(fs.existsSync('css/other.css')).to.be(true)
           expect(fs.existsSync('.git')).to.be(false)
+          expect(fs.existsSync('.gitignore')).to.be(false)
           done()
 
     it 'saves dependencies into local target', (done) ->
@@ -66,7 +68,9 @@ describe 'install', ->
         .on 'end', (status) ->
           expect(fs.existsSync('some_folder/should-copy.txt')).to.be(true)
           expect(fs.existsSync('some_folder/css/core.css')).to.be(true)
+          expect(fs.existsSync('some_folder/css/other.css')).to.be(true)
           expect(fs.existsSync('some_folder/.git')).to.be(false)
+          expect(fs.existsSync('some_folder/.gitignore')).to.be(false)
           done()
 
   describe 'with source json', ->
@@ -91,6 +95,25 @@ describe 'install', ->
           expect(fs.existsSync('some_folder/assets.json')).to.be(false)
           expect(fs.existsSync('some_folder/.git')).to.be(false)
           done()
+
+  # describe 'with a files array', ->
+    # it 'copies a file path to destination', (done) ->
+      # component =
+        # source: "../repos/without_json"
+        # files: [
+          # {
+            # src:  "css/core.css"
+            # dest: "css/shared"
+          # }
+        # ]
+
+      # install([component])
+        # .on 'error', (err) ->
+          # throw err
+        # .on 'end', (status) ->
+          # expect(fs.existsSync('css/shared/core.css')).to.be(true)
+          # expect(fs.existsSync('css/shared/other.css')).to.be(false)
+          # done()
 
   describe 'post scripts', ->
     it 'does not copy post_scripts directory', (done) ->
