@@ -27,5 +27,5 @@ parachute.commands[command]()
     if (data) process.stdout.write(data);
   })
   .on('error', function(err) {
-    process.stdout.write(err.message);
+    process.stdout.write(err.message + '\n');
   });

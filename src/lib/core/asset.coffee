@@ -72,7 +72,20 @@ class Asset extends EventEmitter
     else
       @emit 'error', message: 'asset is not cached'
 
-  # Pseudo-private functions
+  update: (callback) ->
+    @repo.status (err, status) =>
+      if @isCached() && status.clean
+        template('action', { doing: 'Updating', what: @name })
+          .on 'data', @emit.bind(@, 'data')
+        cp = git(['pull', 'origin', 'master'], cwd: @cacheDir)
+        cp.on 'exit', (status) =>
+          @emit 'updated', status
+      else
+        @emit 'error', message: "'#{@name}' repo is dirty, please resolve changes"
+
+    callback?()
+
+  # Private
 
   customCopy: (callback) ->
     componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
