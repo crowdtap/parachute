@@ -74,16 +74,16 @@ class Asset extends EventEmitter
 
   update: (callback) ->
     @repo.status (err, status) =>
-      if @isCached() && status.clean
+      if status.clean
         template('action', { doing: 'Updating', what: @name })
           .on 'data', @emit.bind(@, 'data')
         cp = git(['pull', 'origin', 'master'], cwd: @cacheDir)
         cp.on 'exit', (status) =>
           @emit 'updated', status
+          callback?()
       else
         @emit 'error', message: "'#{@name}' repo is dirty, please resolve changes"
 
-    callback?()
 
   # Private
 

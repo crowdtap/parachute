@@ -19,7 +19,7 @@ if (options.version) return console.log('parachute: ' + pkg.version);
 command = options.argv.remain && options.argv.remain.shift();
 if (parachute.commands[command] == undefined) command = 'help';
 
-parachute.commands[command]()
+parachute.commands[command].line(process.argv)
   .on('data', function(data) {
     if (data) process.stdout.write(data);
   })

@@ -48,6 +48,10 @@ describe 'install', ->
         expect(status).to.be(0)
         done()
 
+  it 'has a line function', (done) ->
+    expect(!!install.line).to.be(true)
+    done()
+
   describe 'without source json', ->
     it 'saves dependencies into current working directory without local target', (done) ->
       install([noLocalnoSourceJson])
