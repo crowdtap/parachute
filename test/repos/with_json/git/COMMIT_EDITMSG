@@ -1,1 +1,1 @@
-update assets.json to single source file
+use file instead of directory for target

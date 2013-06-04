@@ -2,7 +2,7 @@
   "components": [
     {
       "source": "css/core.css",
-      "target": "css/shared/"
+      "target": "css/shared/core.css"
     }
   ]
 }
