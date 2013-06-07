@@ -33,6 +33,8 @@ class Asset extends EventEmitter
       callback?(status)
 
   copy: (callback) ->
+    console.log "[Asset] #copy"
+    console.log "[ls] - #{fs.readdirSync('.')}"
     if @isCached()
       @repo.status (err, status) =>
         if status.clean
@@ -91,6 +93,9 @@ class Asset extends EventEmitter
     componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
     components     = componentsJson.components
 
+    console.log "[Asset] #customCopy"
+    console.log "[ls] - #{fs.readdirSync('.')}"
+
     if components?.length
       next = (err) =>
         throw err if err
@@ -103,12 +108,30 @@ class Asset extends EventEmitter
       copyNextComponent = =>
         component = components.shift()
         source    = path.join @cacheDir, component.source
-        dest      = @subVariables path.resolve(path.join(@targetDir, component.target))
-        fs.exists dest, (destExists) =>
-          if destExists
+        dest      = @subVariables path.join(@targetDir, component.target)
+
+        console.log "[Asset] #customCopy - copyNextComponent"
+        console.log "component - #{JSON.stringify(component, null, 2)}"
+        console.log "[ls] - #{fs.readdirSync('.')}"
+
+        # Evaluate destination and extract destination directory
+        if dest.indexOf('/', dest.length - '/'.length) != -1
+          console.log "[Asset] #customCopy - dest is directory"
+          destDir = dest
+        else
+          console.log "[Asset] #customCopy - dest is NOT directory"
+          destDir = dest.split('/').slice(0, -1).join('/')
+
+        console.log "[Asset] #customCopy - dest: #{dest}"
+        console.log "[Asset] #customCopy - destDir: #{destDir}"
+
+        fs.exists destDir, (destDirExists) =>
+          if destDirExists
+            console.log "[Asset] #customCopy - destDirExists"
             @ncp source, dest, next
           else
-            mkdirp dest, (err) =>
+            console.log "[Asset] #customCopy - destDirExists is false"
+            mkdirp destDir, (err) =>
               throw err if err
               @ncp source, dest, next
 
@@ -124,6 +147,15 @@ class Asset extends EventEmitter
         callback?(0)
 
   ncp: (source, dest, callback) ->
+    console.log "[Asset] #ncp"
+    console.log "source - #{source}"
+    console.log "dest - #{dest}"
+    console.log "[ls] - #{fs.readdirSync('.')}"
+    console.log "[ls css] - #{fs.readdirSync('css')}"
+    console.log "[ls css/shared] - #{fs.readdirSync('css/shared')}"
+    stats = fs.lstatSync('css/shared')
+    console.log "[css/shared isDirectory?] #{stats.isDirectory()}"
+
     ignore  = [/\.git/, /assets.json/, /post_scripts/]
     options =
       clobber: true
@@ -133,7 +165,9 @@ class Asset extends EventEmitter
         return true
 
     ncp source, dest, options, (err) =>
-      throw err if err
+      if err
+        console.log "[Asset] #ncp - error: #{err}"
+        throw err
       callback?(0)
 
   subVariables: (string) ->

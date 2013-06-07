@@ -121,7 +121,7 @@ describe 'Asset', ->
           expect(fs.existsSync('css/core.css')).to.be(true)
           done()
 
-    it 'copies cache contents according to assets.json when present', (done) ->
+    it 'xxx copies cache contents according to assets.json when present', (done) ->
       asset = new Asset('../repos/with_json')
       asset.on 'error', (err) -> throw err
       asset.cache ->
