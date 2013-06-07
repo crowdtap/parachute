@@ -1,11 +1,10 @@
 { EventEmitter } = require('events')
 assetVars        = require('./asset_vars')
+copycat          = require('../util/copycat')
 git              = require('../util/git-wrapper')
 template         = require('../util/template')
 fs               = require('fs')
 gift             = require('gift')
-mkdirp           = require('mkdirp')
-ncp              = require('ncp')
 path             = require('path')
 spawn            = require('child_process').spawn
 
@@ -23,6 +22,14 @@ class Asset extends EventEmitter
     @source    = path.resolve(@source) unless @remote
     @repo      = gift @cacheDir
 
+    @ncpOptions =
+      clobber: true
+      filter: (filename) ->
+        ignore  = [/\.git/, /assets.json/, /post_scripts/]
+        for regexp in ignore
+          return false if filename.match(regexp)?.length
+        return true
+
   cache: (callback) ->
     template('action', { doing: 'caching', what: @source })
       .on 'data', @emit.bind(@, 'data')
@@ -33,8 +40,6 @@ class Asset extends EventEmitter
       callback?(status)
 
   copy: (callback) ->
-    console.log "[Asset] #copy"
-    console.log "[ls] - #{fs.readdirSync('.')}"
     if @isCached()
       @repo.status (err, status) =>
         if status.clean
@@ -86,15 +91,11 @@ class Asset extends EventEmitter
       else
         @emit 'error', message: "'#{@name}' repo is dirty, please resolve changes"
 
-
   # Private
 
   customCopy: (callback) ->
     componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
     components     = componentsJson.components
-
-    console.log "[Asset] #customCopy"
-    console.log "[ls] - #{fs.readdirSync('.')}"
 
     if components?.length
       next = (err) =>
@@ -110,65 +111,16 @@ class Asset extends EventEmitter
         source    = path.join @cacheDir, component.source
         dest      = @subVariables path.join(@targetDir, component.target)
 
-        console.log "[Asset] #customCopy - copyNextComponent"
-        console.log "component - #{JSON.stringify(component, null, 2)}"
-        console.log "[ls] - #{fs.readdirSync('.')}"
-
-        # Evaluate destination and extract destination directory
-        if dest.indexOf('/', dest.length - '/'.length) != -1
-          console.log "[Asset] #customCopy - dest is directory"
-          destDir = dest
-        else
-          console.log "[Asset] #customCopy - dest is NOT directory"
-          destDir = dest.split('/').slice(0, -1).join('/')
-
-        console.log "[Asset] #customCopy - dest: #{dest}"
-        console.log "[Asset] #customCopy - destDir: #{destDir}"
-
-        fs.exists destDir, (destDirExists) =>
-          if destDirExists
-            console.log "[Asset] #customCopy - destDirExists"
-            @ncp source, dest, next
-          else
-            console.log "[Asset] #customCopy - destDirExists is false"
-            mkdirp destDir, (err) =>
-              throw err if err
-              @ncp source, dest, next
+        copycat.copy(source, dest, @ncpOptions, next)
 
       copyNextComponent()
     else
       @fullCopy(callback)
 
-  fullCopy: (callback) ->
-    fs.exists @targetDir, (exists) =>
-      mkdirp.sync(@targetDir) unless exists
-      @ncp @cacheDir, @targetDir, (err) =>
-        @emit 'copied', 0
-        callback?(0)
-
-  ncp: (source, dest, callback) ->
-    console.log "[Asset] #ncp"
-    console.log "source - #{source}"
-    console.log "dest - #{dest}"
-    console.log "[ls] - #{fs.readdirSync('.')}"
-    console.log "[ls css] - #{fs.readdirSync('css')}"
-    console.log "[ls css/shared] - #{fs.readdirSync('css/shared')}"
-    stats = fs.lstatSync('css/shared')
-    console.log "[css/shared isDirectory?] #{stats.isDirectory()}"
-
-    ignore  = [/\.git/, /assets.json/, /post_scripts/]
-    options =
-      clobber: true
-      filter: (filename) ->
-        for regexp in ignore
-          return false if filename.match(regexp)?.length
-        return true
-
-    ncp source, dest, options, (err) =>
-      if err
-        console.log "[Asset] #ncp - error: #{err}"
-        throw err
-      callback?(0)
+  fullCopy: (cb) ->
+    copycat.copy @cacheDir, @targetDir, @ncpOptions, (err) =>
+      @emit 'copied', 0
+      cb?(0)
 
   subVariables: (string) ->
     for variable in string.match(/{{(\w+)}}/g) || []

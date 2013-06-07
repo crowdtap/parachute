@@ -1,0 +1,38 @@
+_      = require('./lodash-ext')
+fs     = require('fs')
+ncp    = require('ncp')
+path   = require('path')
+mkdirp = require('mkdirp')
+
+module.exports.copy = (src, dest, options, cb) ->
+  throw err unless fs.existsSync(src)
+
+  cb = options unless cb?
+
+  if @isDirectoryPath(dest)
+    destDir     = dest
+    srcFilename = @parseFilename(src)
+    dest        = path.join(dest, srcFilename)
+  else
+    destDir = @parseDestDir(dest)
+
+  mkdirp.sync(destDir) unless fs.existsSync(dest)
+
+  ncp src, dest, options, (err) ->
+    throw err if err
+    cb?()
+
+module.exports.isDirectoryPath = (pathString) ->
+  _.endsWith(pathString, '/')
+
+module.exports.parseDestDir = (pathString) ->
+  if @isDirectoryPath(pathString)
+    pathString
+  else
+    pathString.split('/').slice(0, -1).join('/')
+
+module.exports.parseFilename = (pathString) ->
+  if @isDirectoryPath(pathString)
+    null
+  else
+    _.last(pathString.split('/'))
