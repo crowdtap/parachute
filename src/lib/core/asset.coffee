@@ -30,22 +30,22 @@ class Asset extends EventEmitter
           return false if filename.match(regexp)?.length
         return true
 
-  cache: (callback) ->
+  cache: (cb) ->
     template('action', { doing: 'caching', what: @source })
       .on 'data', @emit.bind(@, 'data')
     # TODO: Check if @source is local and exists
     cp = git(['clone', @source, @cacheDir])
     cp.on 'exit', (status) =>
       @emit 'cached', status
-      callback?(status)
+      cb?(status)
 
-  copy: (callback) ->
+  copy: (cb) ->
     if @isCached()
       @repo.status (err, status) =>
         if status.clean
           fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
             copyType = if hasJson then 'custom' else 'full'
-            @["#{copyType}Copy"](callback)
+            @["#{copyType}Copy"](cb)
             template('action', { doing: 'copying', what: @source })
               .on 'data', @emit.bind(@, 'data')
         else
@@ -79,7 +79,7 @@ class Asset extends EventEmitter
     else
       @emit 'error', message: 'asset is not cached'
 
-  update: (callback) ->
+  update: (cb) ->
     @repo.status (err, status) =>
       if status.clean
         template('action', { doing: 'Updating', what: @name })
@@ -87,13 +87,13 @@ class Asset extends EventEmitter
         cp = git(['pull', 'origin', 'master'], cwd: @cacheDir)
         cp.on 'exit', (status) =>
           @emit 'updated', status
-          callback?()
+          cb?()
       else
         @emit 'error', message: "'#{@name}' repo is dirty, please resolve changes"
 
   # Private
 
-  customCopy: (callback) ->
+  customCopy: (cb) ->
     componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
     components     = componentsJson.components
 
@@ -104,7 +104,7 @@ class Asset extends EventEmitter
           copyNextComponent()
         else
           @emit 'copied', 0
-          callback?(0)
+          cb?(0)
 
       copyNextComponent = =>
         component = components.shift()
@@ -115,7 +115,7 @@ class Asset extends EventEmitter
 
       copyNextComponent()
     else
-      @fullCopy(callback)
+      @fullCopy(cb)
 
   fullCopy: (cb) ->
     copycat.copy @cacheDir, @targetDir, @ncpOptions, (err) =>
