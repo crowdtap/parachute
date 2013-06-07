@@ -106,14 +106,12 @@ class Asset extends EventEmitter
           @emit 'copied', 0
           cb?(0)
 
-      copyNextComponent = =>
+      do copyNextComponent = =>
         component = components.shift()
         source    = path.join @cacheDir, component.source
         dest      = @subVariables path.join(@targetDir, component.target)
 
         copycat.copy(source, dest, @ncpOptions, next)
-
-      copyNextComponent()
     else
       @fullCopy(cb)
 
