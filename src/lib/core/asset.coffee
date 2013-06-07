@@ -1,11 +1,10 @@
 { EventEmitter } = require('events')
 assetVars        = require('./asset_vars')
+copycat          = require('../util/copycat')
 git              = require('../util/git-wrapper')
 template         = require('../util/template')
 fs               = require('fs')
 gift             = require('gift')
-mkdirp           = require('mkdirp')
-ncp              = require('ncp')
 path             = require('path')
 spawn            = require('child_process').spawn
 
@@ -23,22 +22,30 @@ class Asset extends EventEmitter
     @source    = path.resolve(@source) unless @remote
     @repo      = gift @cacheDir
 
-  cache: (callback) ->
+    @ncpOptions =
+      clobber: true
+      filter: (filename) ->
+        ignore  = [/\.git/, /assets.json/, /post_scripts/]
+        for regexp in ignore
+          return false if filename.match(regexp)?.length
+        return true
+
+  cache: (cb) ->
     template('action', { doing: 'caching', what: @source })
       .on 'data', @emit.bind(@, 'data')
     # TODO: Check if @source is local and exists
     cp = git(['clone', @source, @cacheDir])
     cp.on 'exit', (status) =>
       @emit 'cached', status
-      callback?(status)
+      cb?(status)
 
-  copy: (callback) ->
+  copy: (cb) ->
     if @isCached()
       @repo.status (err, status) =>
         if status.clean
           fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
             copyType = if hasJson then 'custom' else 'full'
-            @["#{copyType}Copy"](callback)
+            @["#{copyType}Copy"](cb)
             template('action', { doing: 'copying', what: @source })
               .on 'data', @emit.bind(@, 'data')
         else
@@ -72,7 +79,7 @@ class Asset extends EventEmitter
     else
       @emit 'error', message: 'asset is not cached'
 
-  update: (callback) ->
+  update: (cb) ->
     @repo.status (err, status) =>
       if status.clean
         template('action', { doing: 'Updating', what: @name })
@@ -80,14 +87,13 @@ class Asset extends EventEmitter
         cp = git(['pull', 'origin', 'master'], cwd: @cacheDir)
         cp.on 'exit', (status) =>
           @emit 'updated', status
-          callback?()
+          cb?()
       else
         @emit 'error', message: "'#{@name}' repo is dirty, please resolve changes"
 
-
   # Private
 
-  customCopy: (callback) ->
+  customCopy: (cb) ->
     componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
     components     = componentsJson.components
 
@@ -98,43 +104,21 @@ class Asset extends EventEmitter
           copyNextComponent()
         else
           @emit 'copied', 0
-          callback?(0)
+          cb?(0)
 
-      copyNextComponent = =>
+      do copyNextComponent = =>
         component = components.shift()
         source    = path.join @cacheDir, component.source
-        dest      = @subVariables path.resolve(path.join(@targetDir, component.target))
-        fs.exists dest, (destExists) =>
-          if destExists
-            @ncp source, dest, next
-          else
-            mkdirp dest, (err) =>
-              throw err if err
-              @ncp source, dest, next
+        dest      = @subVariables path.join(@targetDir, component.target)
 
-      copyNextComponent()
+        copycat.copy(source, dest, @ncpOptions, next)
     else
-      @fullCopy(callback)
+      @fullCopy(cb)
 
-  fullCopy: (callback) ->
-    fs.exists @targetDir, (exists) =>
-      mkdirp.sync(@targetDir) unless exists
-      @ncp @cacheDir, @targetDir, (err) =>
-        @emit 'copied', 0
-        callback?(0)
-
-  ncp: (source, dest, callback) ->
-    ignore  = [/\.git/, /assets.json/, /post_scripts/]
-    options =
-      clobber: true
-      filter: (filename) ->
-        for regexp in ignore
-          return false if filename.match(regexp)?.length
-        return true
-
-    ncp source, dest, options, (err) =>
-      throw err if err
-      callback?(0)
+  fullCopy: (cb) ->
+    copycat.copy @cacheDir, @targetDir, @ncpOptions, (err) =>
+      @emit 'copied', 0
+      cb?(0)
 
   subVariables: (string) ->
     for variable in string.match(/{{(\w+)}}/g) || []
