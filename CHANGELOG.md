@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.0.1-alpha.4 - 2013-06-07
+
+* Components in `assets.json` can now handle single files. __NOTE:__ Directories
+  must be suffixed with a forward slash `/` when specifying components.
+* New lodash wrapper with extensions.
+* New recursive copy utility, copycat.
+
 ## v0.0.1-alpha.3 - 2013-05-21
 
 * `--update` option for `install` command updates repos before install.

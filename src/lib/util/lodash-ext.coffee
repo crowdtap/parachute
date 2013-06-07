@@ -1,4 +1,6 @@
-# Lodash wrapper with extensions
+# Lodash wrapper with extensions.
+#
+# ===============================
 
 _ = require('lodash')
 

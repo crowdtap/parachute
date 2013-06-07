@@ -1,3 +1,10 @@
+# Copycat!
+#
+# Recursive file copy utility which makes any intermediate directories as
+# needed.
+#
+# =======================================================================
+
 _      = require('./lodash-ext')
 fs     = require('fs')
 ncp    = require('ncp')
