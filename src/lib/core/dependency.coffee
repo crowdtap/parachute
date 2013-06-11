@@ -8,7 +8,7 @@ gift             = require('gift')
 path             = require('path')
 spawn            = require('child_process').spawn
 
-class Asset extends EventEmitter
+class Dependency extends EventEmitter
   constructor: (@source, target) ->
     # Recognize git source URL parameters:
     # [original str, http(s), git@, host, trailing path]
@@ -49,15 +49,15 @@ class Asset extends EventEmitter
             template('action', { doing: 'copying', what: @source })
               .on 'data', @emit.bind(@, 'data')
         else
-          @emit 'error', message: 'asset cache is dirty'
+          @emit 'error', message: 'dependency cache is dirty'
     else
-      @emit 'error', message: 'asset is not cached'
+      @emit 'error', message: 'dependency is not cached'
 
   hasPostScripts: ->
     if @isCached()
       fs.existsSync path.join(@cacheDir, 'post_scripts')
     else
-      @emit 'error', message: 'asset is not cached'
+      @emit 'error', message: 'dependency is not cached'
 
   isCached: ->
     fs.existsSync(@cacheDir)
@@ -77,7 +77,7 @@ class Asset extends EventEmitter
         else
           @emit 'post_scripts_complete'
     else
-      @emit 'error', message: 'asset is not cached'
+      @emit 'error', message: 'dependency is not cached'
 
   update: (cb) ->
     @repo.status (err, status) =>
@@ -126,4 +126,4 @@ class Asset extends EventEmitter
       string = string.replace(variable, assetVars[key])
     string
 
-module.exports = Asset
+module.exports = Dependency

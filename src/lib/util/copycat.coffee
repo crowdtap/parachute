@@ -12,7 +12,7 @@ path   = require('path')
 mkdirp = require('mkdirp')
 
 module.exports.copy = (src, dest, options, cb) ->
-  throw err unless fs.existsSync(src)
+  throw "#{src} does not exist" unless fs.existsSync(src)
 
   cb = options unless cb?
 

@@ -1,5 +1,5 @@
 { EventEmitter } = require('events')
-Asset            = require('../core/asset')
+Dependency       = require('../core/dependency')
 config           = require('../core/config')
 help             = require('../commands/help')
 nopt             = require('nopt')
@@ -16,13 +16,13 @@ module.exports = (dependencies, options) ->
   count = 0
   tick  = -> emitter.emit('end', 0) if ++count == dependencies.length
 
-  for dependency in dependencies
-    asset = new Asset(dependency.source, dependency.target)
+  for debObj in dependencies
+    dependency = new Dependency(debObj.source, debObj.target)
 
-    asset.on 'data',  emitter.emit.bind(emitter, 'data')
-    asset.on 'error', emitter.emit.bind(emitter, 'error')
+    dependency.on 'data',  emitter.emit.bind(emitter, 'data')
+    dependency.on 'error', emitter.emit.bind(emitter, 'error')
 
-    asset.update(tick)
+    dependency.update(tick)
 
   return emitter
 

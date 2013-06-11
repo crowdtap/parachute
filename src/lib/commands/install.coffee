@@ -1,5 +1,5 @@
 { EventEmitter } = require('events')
-Asset            = require('../core/asset')
+Dependency       = require('../core/dependency')
 config           = require('../core/config')
 help             = require('../commands/help')
 nopt             = require('nopt')
@@ -18,28 +18,28 @@ module.exports = (dependencies, options) ->
   count = 0
   tick  = -> emitter.emit('end', 0) if ++count == dependencies.length
 
-  for dependency in dependencies
-    asset = new Asset(dependency.source, dependency.target)
+  for depObj in dependencies
+    dependency = new Dependency(depObj.source, depObj.target)
 
-    asset.on 'data',  emitter.emit.bind(emitter, 'data')
-    asset.on 'error', emitter.emit.bind(emitter, 'error')
+    dependency.on 'data',  emitter.emit.bind(emitter, 'data')
+    dependency.on 'error', emitter.emit.bind(emitter, 'error')
 
-    asset.once 'copied', ->
-      if asset.hasPostScripts()
-        asset.on 'post_scripts_complete', tick
-        asset.runPostScripts()
+    dependency.once 'copied', ->
+      if dependency.hasPostScripts()
+        dependency.on 'post_scripts_complete', tick
+        dependency.runPostScripts()
       else
         tick()
 
-    if asset.isCached()
+    if dependency.isCached()
       if options.update
-        asset.once 'updated', asset.copy
-        asset.update()
+        dependency.once 'updated', dependency.copy
+        dependency.update()
       else
-        asset.copy()
+        dependency.copy()
     else
-      asset.once 'cached', asset.copy
-      asset.cache()
+      dependency.once 'cached', dependency.copy
+      dependency.cache()
 
   return emitter
 

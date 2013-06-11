@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.1-alpha.5 - 2013-06-11
+
+* Asset class renamed to Dependency.
+* Fixes error throw issue for nonexistent sources in assets.json.
+
 ## v0.0.1-alpha.4 - 2013-06-07
 
 * Components in `assets.json` can now handle single files. __NOTE:__ Directories
