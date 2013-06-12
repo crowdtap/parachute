@@ -1,4 +1,5 @@
 { EventEmitter } = require('events')
+Manager          = require('../core/manager')
 Dependency       = require('../core/dependency')
 config           = require('../core/config')
 help             = require('../commands/help')
@@ -12,17 +13,13 @@ shorthand =
 
 module.exports = (dependencies, options) ->
   emitter = new EventEmitter
+  manager = new Manager(dependencies)
 
-  count = 0
-  tick  = -> emitter.emit('end', 0) if ++count == dependencies.length
-
-  for debObj in dependencies
-    dependency = new Dependency(debObj.source, debObj.target)
-
-    dependency.on 'data',  emitter.emit.bind(emitter, 'data')
-    dependency.on 'error', emitter.emit.bind(emitter, 'error')
-
-    dependency.update(tick)
+  manager
+    .on('error', emitter.emit.bind(emitter, 'error'))
+    .on 'updated', ->
+      emitter.emit('end', 0)
+    .update()
 
   return emitter
 

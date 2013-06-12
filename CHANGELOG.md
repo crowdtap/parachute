@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.0.1-beta.1 - 2013-06-12
+
+* New `Manager` class handles resolving, installing, and updating.
+* Commands act somewhat like a proxy to respective `Manager` functions.
+* Add Sinon to devDependencies, only being used in Manager tests at the moment.
+* `Manager` and `Dependency` class architecture preps us for prime time.
+
 ## v0.0.1-alpha.5 - 2013-06-11
 
 * Asset class renamed to Dependency.
