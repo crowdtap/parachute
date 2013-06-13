@@ -10,7 +10,7 @@ class Manager extends EventEmitter
     @dependencies = []
 
     for depObj in dependencies
-      dependency = new Dependency(depObj.source, depObj.target)
+      dependency = new Dependency(depObj.src, depObj.dest)
       @dependencies.push(dependency)
       # TODO: Test error emissions for each method?
       dependency

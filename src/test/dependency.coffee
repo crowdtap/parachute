@@ -30,7 +30,7 @@ describe 'Dependency', ->
   describe 'instance variables', ->
     it 'sets the source URL', (done) ->
       dependency = new Dependency(remoteDependency)
-      expect(dependency.source).to.eql(remoteDependency)
+      expect(dependency.src).to.eql(remoteDependency)
       done()
 
     it 'sets the name of the dependency', (done) ->
