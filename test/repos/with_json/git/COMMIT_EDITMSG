@@ -1,1 +1,1 @@
-use file instead of directory for target
+s/target/dest

@@ -2,7 +2,7 @@
   "components": [
     {
       "source": "css",
-      "target": "css/{{dirName}}"
+      "dest":   "css/{{dirName}}"
     }
   ]
 }
