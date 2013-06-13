@@ -9,7 +9,7 @@ path             = require('path')
 spawn            = require('child_process').spawn
 
 class Dependency extends EventEmitter
-  constructor: (@source, target) ->
+  constructor: (@source, dest) ->
     # Recognize git source URL parameters:
     # [original str, http(s), git@, host, trailing path]
     gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*(.*)/
@@ -17,7 +17,7 @@ class Dependency extends EventEmitter
 
     @name      = pathSegments[4].replace('/','-').replace('.git','')
     @cacheDir  = path.join(process.env['HOME'], '.parachute', @name)
-    @targetDir = target || process.cwd()
+    @destDir   = dest || process.cwd()
     @remote    = pathSegments[1]? || pathSegments[2]?
     @source    = path.resolve(@source) unless @remote
     @repo      = gift @cacheDir
@@ -109,14 +109,14 @@ class Dependency extends EventEmitter
       do copyNextComponent = =>
         component = components.shift()
         source    = path.join @cacheDir, component.source
-        dest      = @subVariables path.join(@targetDir, component.target)
+        dest      = @subVariables path.join(@destDir, component.target)
 
         copycat.copy(source, dest, @ncpOptions, next)
     else
       @fullCopy(cb)
 
   fullCopy: (cb) ->
-    copycat.copy @cacheDir, @targetDir, @ncpOptions, (err) =>
+    copycat.copy @cacheDir, @destDir, @ncpOptions, (err) =>
       @emit 'copied', 0
       cb?(0)
 
