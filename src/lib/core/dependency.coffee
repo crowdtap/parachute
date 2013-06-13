@@ -108,7 +108,7 @@ class Dependency extends EventEmitter
 
       do copyNextComponent = =>
         component = components.shift()
-        source    = path.join @cacheDir, component.source
+        source    = path.join @cacheDir, component.src
         dest      = @subVariables path.join(@destDir, component.dest)
 
         copycat.copy(source, dest, @ncpOptions, next)
