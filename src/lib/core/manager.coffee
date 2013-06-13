@@ -2,9 +2,10 @@
 Dependency       = require('./dependency')
 
 class Manager extends EventEmitter
-  constructor: (dependencies) ->
+  constructor: (dependencies, options) ->
     @config =
       dependencies: dependencies || []
+      options:      options      || {}
     @tickers = {}
     @dependencies = []
 
@@ -16,9 +17,15 @@ class Manager extends EventEmitter
 
   resolve: ->
     for dependency in @dependencies
-      dependency.cache => @tick('resolved')
+      if dependency.isCached()
+        if @config.options.update
+          dependency.update => @tick('resolved')
+        else
+          @tick('resolved')
+      else
+        dependency.cache => @tick('resolved')
 
-  install: (options) ->
+  install: ->
     @on 'copied', (dependency) =>
       if dependency.hasPostScripts()
         dependency
@@ -28,7 +35,7 @@ class Manager extends EventEmitter
         @tick('installed')
 
     for dependency in @dependencies
-      if options?.update
+      if @config.options.update
         dependency.update =>
           dependency.copy => @emit('copied', dependency)
       else

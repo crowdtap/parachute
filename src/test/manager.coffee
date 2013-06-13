@@ -66,6 +66,8 @@ describe 'Dependency', ->
         .resolve()
 
     it 'caches dependencies', (done) ->
+      sinon.stub @manager.dependencies[0], 'isCached', -> false
+      sinon.stub @manager.dependencies[1], 'isCached', -> false
       stub1 = sinon.stub @manager.dependencies[0], 'cache', (cb) -> cb?()
       stub2 = sinon.stub @manager.dependencies[1], 'cache', (cb) -> cb?()
 
@@ -76,6 +78,26 @@ describe 'Dependency', ->
 
       expect(stub1.calledOnce).to.be(true)
       expect(stub2.calledOnce).to.be(true)
+      done()
+
+    it 'updates already cached dependencies', (done) ->
+      @manager = new Manager(config.dependencies, update: true)
+      sinon.stub @manager.dependencies[0], 'isCached', -> true
+      sinon.stub @manager.dependencies[1], 'isCached', -> true
+      stubCache1 = sinon.stub @manager.dependencies[0], 'cache', (cb) -> cb?()
+      stubCache2 = sinon.stub @manager.dependencies[1], 'cache', (cb) -> cb?()
+      stubUpdate1 = sinon.stub @manager.dependencies[0], 'update', (cb) -> cb?()
+      stubUpdate2 = sinon.stub @manager.dependencies[1], 'update', (cb) -> cb?()
+
+      @manager
+        .on 'error', (err) ->
+          throw err
+        .resolve()
+
+      expect(stubCache1.calledOnce).to.be(false)
+      expect(stubCache2.calledOnce).to.be(false)
+      expect(stubUpdate1.calledOnce).to.be(true)
+      expect(stubUpdate2.calledOnce).to.be(true)
       done()
 
   describe '#install', ->
@@ -108,6 +130,7 @@ describe 'Dependency', ->
       done()
 
     it 'updates before copying if option passed', (done) ->
+      @manager = new Manager(config.dependencies, update: true)
       sinon.stub @manager.dependencies[0], 'copy', (cb) -> cb?()
       sinon.stub @manager.dependencies[1], 'copy', (cb) -> cb?()
       stub1 = sinon.stub @manager.dependencies[0], 'update', (cb) -> cb?()
@@ -118,7 +141,7 @@ describe 'Dependency', ->
       @manager
         .on 'error', (err) ->
           throw err
-        .install(update: true)
+        .install()
 
       expect(stub1.calledOnce).to.be(true)
       expect(stub2.calledOnce).to.be(true)

@@ -15,12 +15,12 @@ shorthand =
 
 module.exports = (dependencies, options) ->
   emitter = new EventEmitter
-  manager = new Manager(dependencies)
+  manager = new Manager(dependencies, options)
 
   manager
     .on('error', emitter.emit.bind(emitter, 'error'))
     .on 'resolved', (status) ->
-      @install(options)
+      @install()
     .on 'installed', (status) ->
       emitter.emit('end', 0)
     .resolve()

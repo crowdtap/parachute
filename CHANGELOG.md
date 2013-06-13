@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.1-beta.2 - 2013-06-13
+
+* `update` option for `Manager`.
+* Prevent double cache attempt for dependencies already cached.
+
 ## v0.0.1-beta.1 - 2013-06-12
 
 * New `Manager` class handles resolving, installing, and updating.

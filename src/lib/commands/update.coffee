@@ -13,7 +13,7 @@ shorthand =
 
 module.exports = (dependencies, options) ->
   emitter = new EventEmitter
-  manager = new Manager(dependencies)
+  manager = new Manager(dependencies, options)
 
   manager
     .on('error', emitter.emit.bind(emitter, 'error'))
