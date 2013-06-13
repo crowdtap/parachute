@@ -1,8 +1,8 @@
 {
   "components": [
     {
-      "source": "css",
-      "dest":   "css/{{dirName}}"
+      "src":  "css",
+      "dest": "css/{{dirName}}"
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "components": [
     {
-      "source": "css/core.css",
-      "dest":   "css/shared/core.css"
+      "src":  "css/core.css",
+      "dest": "css/shared/core.css"
     }
   ]
 }
