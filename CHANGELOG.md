@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.0.1-beta.3 - 2013-06-13
+
+* Fix data emission and progress output.
+* Fix double update on install issue.
+
 ## v0.0.1-beta.2 - 2013-06-13
 
 * `update` option for `Manager`.

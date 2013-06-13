@@ -129,24 +129,6 @@ describe 'Dependency', ->
       expect(stub2.calledOnce).to.be(true)
       done()
 
-    it 'updates before copying if option passed', (done) ->
-      @manager = new Manager(config.dependencies, update: true)
-      sinon.stub @manager.dependencies[0], 'copy', (cb) -> cb?()
-      sinon.stub @manager.dependencies[1], 'copy', (cb) -> cb?()
-      stub1 = sinon.stub @manager.dependencies[0], 'update', (cb) -> cb?()
-      stub2 = sinon.stub @manager.dependencies[1], 'update', (cb) -> cb?()
-      for dependency in @manager.dependencies
-        sinon.stub dependency, 'hasPostScripts', -> false
-
-      @manager
-        .on 'error', (err) ->
-          throw err
-        .install()
-
-      expect(stub1.calledOnce).to.be(true)
-      expect(stub2.calledOnce).to.be(true)
-      done()
-
     it 'runs post scripts after copy', (done) ->
       sinon.stub @manager.dependencies[0], 'copy', (cb) -> cb?()
       sinon.stub @manager.dependencies[1], 'copy', (cb) -> cb?()

@@ -13,7 +13,9 @@ class Manager extends EventEmitter
       dependency = new Dependency(depObj.source, depObj.target)
       @dependencies.push(dependency)
       # TODO: Test error emissions for each method?
-      dependency.on 'error', @emit.bind(@, 'error')
+      dependency
+        .on('data',  @emit.bind(@, 'data'))
+        .on('error', @emit.bind(@, 'error'))
 
   resolve: ->
     for dependency in @dependencies
@@ -26,20 +28,14 @@ class Manager extends EventEmitter
         dependency.cache => @tick('resolved')
 
   install: ->
-    @on 'copied', (dependency) =>
-      if dependency.hasPostScripts()
-        dependency
-          .on('post_scripts_complete', => @tick('installed'))
-          .runPostScripts()
-      else
-        @tick('installed')
-
     for dependency in @dependencies
-      if @config.options.update
-        dependency.update =>
-          dependency.copy => @emit('copied', dependency)
-      else
-        dependency.copy => @emit('copied', dependency)
+      dependency.copy =>
+        if dependency.hasPostScripts()
+          dependency
+            .on('post_scripts_complete', => @tick('installed'))
+            .runPostScripts()
+        else
+          @tick('installed')
 
   update: ->
     for dependency in @dependencies

@@ -40,17 +40,28 @@ describe 'install', ->
     process.chdir cwd
     clean(done)
 
-  it 'emits an end event', (done) ->
-    install([noLocalnoSourceJson])
-      .on 'error', (err) ->
-        throw err
-      .on 'end', (status) ->
-        expect(status).to.be(0)
-        done()
-
   it 'has a line function', (done) ->
     expect(!!install.line).to.be(true)
     done()
+
+  describe 'events', ->
+    it 'emits an end event', (done) ->
+      install([noLocalnoSourceJson])
+        .on 'error', (err) ->
+          throw err
+        .on 'end', (status) ->
+          expect(status).to.be(0)
+          done()
+
+    it 'emits data events', (done) ->
+      install([noLocalnoSourceJson])
+        .on 'error', (err) ->
+          throw err
+        .on 'data', (data) ->
+          expect(data).to.be.ok()
+        .on 'end', (status) ->
+          expect(status).to.be(0)
+          done()
 
   describe 'without source json', ->
     it 'saves dependencies into current working directory without local target', (done) ->

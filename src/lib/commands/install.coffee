@@ -19,6 +19,7 @@ module.exports = (dependencies, options) ->
 
   manager
     .on('error', emitter.emit.bind(emitter, 'error'))
+    .on('data',  emitter.emit.bind(emitter, 'data'))
     .on 'resolved', (status) ->
       @install()
     .on 'installed', (status) ->
