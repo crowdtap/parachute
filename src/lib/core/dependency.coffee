@@ -9,17 +9,17 @@ path             = require('path')
 spawn            = require('child_process').spawn
 
 class Dependency extends EventEmitter
-  constructor: (@source, target) ->
+  constructor: (@src, dest) ->
     # Recognize git source URL parameters:
     # [original str, http(s), git@, host, trailing path]
     gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*(.*)/
-    pathSegments = @source.match(gitRegex)
+    pathSegments = @src.match(gitRegex)
 
     @name      = pathSegments[4].replace('/','-').replace('.git','')
     @cacheDir  = path.join(process.env['HOME'], '.parachute', @name)
-    @targetDir = target || process.cwd()
+    @destDir   = dest || process.cwd()
     @remote    = pathSegments[1]? || pathSegments[2]?
-    @source    = path.resolve(@source) unless @remote
+    @src       = path.resolve(@src) unless @remote
     @repo      = gift @cacheDir
 
     @ncpOptions =
@@ -31,10 +31,10 @@ class Dependency extends EventEmitter
         return true
 
   cache: (cb) ->
-    template('action', { doing: 'caching', what: @source })
+    template('action', { doing: 'caching', what: @src })
       .on 'data', @emit.bind(@, 'data')
-    # TODO: Check if @source is local and exists
-    cp = git(['clone', @source, @cacheDir])
+    # TODO: Check if @src is local and exists
+    cp = git(['clone', @src, @cacheDir])
     cp.on 'exit', (status) =>
       @emit 'cached', status
       cb?(status)
@@ -46,7 +46,7 @@ class Dependency extends EventEmitter
           fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
             copyType = if hasJson then 'custom' else 'full'
             @["#{copyType}Copy"](cb)
-            template('action', { doing: 'copying', what: @source })
+            template('action', { doing: 'copying', what: @src })
               .on 'data', @emit.bind(@, 'data')
         else
           @emit 'error', message: 'dependency cache is dirty'
@@ -108,15 +108,15 @@ class Dependency extends EventEmitter
 
       do copyNextComponent = =>
         component = components.shift()
-        source    = path.join @cacheDir, component.source
-        dest      = @subVariables path.join(@targetDir, component.target)
+        source    = path.join @cacheDir, component.src
+        dest      = @subVariables path.join(@destDir, component.dest)
 
         copycat.copy(source, dest, @ncpOptions, next)
     else
       @fullCopy(cb)
 
   fullCopy: (cb) ->
-    copycat.copy @cacheDir, @targetDir, @ncpOptions, (err) =>
+    copycat.copy @cacheDir, @destDir, @ncpOptions, (err) =>
       @emit 'copied', 0
       cb?(0)
 

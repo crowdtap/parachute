@@ -30,7 +30,7 @@ describe 'Dependency', ->
   describe 'instance variables', ->
     it 'sets the source URL', (done) ->
       dependency = new Dependency(remoteDependency)
-      expect(dependency.source).to.eql(remoteDependency)
+      expect(dependency.src).to.eql(remoteDependency)
       done()
 
     it 'sets the name of the dependency', (done) ->
@@ -43,11 +43,11 @@ describe 'Dependency', ->
       expect(dependency.cacheDir).to.eql("#{process.env['HOME']}/.parachute/bar-baz")
       done()
 
-    it 'sets the dependency target directory', (done) ->
+    it 'sets the dependency destination directory', (done) ->
       dependencyWithoutDirectory = new Dependency(remoteDependency)
       dependencyWithDirectory    = new Dependency(remoteDependency, 'css')
-      expect(dependencyWithoutDirectory.targetDir).to.eql(process.cwd())
-      expect(dependencyWithDirectory.targetDir).to.eql('css')
+      expect(dependencyWithoutDirectory.destDir).to.eql(process.cwd())
+      expect(dependencyWithDirectory.destDir).to.eql('css')
       done()
 
     it 'sets whether the dependency source is remote', (done) ->

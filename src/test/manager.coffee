@@ -12,10 +12,10 @@ describe 'Dependency', ->
   config  =
     dependencies: [
       {
-        source: 'git@foo.com:bar/baz.git'
+        src: 'git@foo.com:bar/baz.git'
       },
       {
-        source: 'git@bar.com:baz/foo.git'
+        src: 'git@bar.com:baz/foo.git'
       }
     ]
 
@@ -49,7 +49,7 @@ describe 'Dependency', ->
       expect(@manager.dependencies).to.have.length(2)
       for _, i in @manager.dependencies
         expect(@manager.dependencies[i]).to.be.a(Dependency)
-        expect(@manager.dependencies[i].source).to.be(config.dependencies[i].source)
+        expect(@manager.dependencies[i].src).to.be(config.dependencies[i].src)
       done()
 
   describe '#resolve', ->

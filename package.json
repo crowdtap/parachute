@@ -1,6 +1,6 @@
 {
   "name":         "parachute",
-  "version":      "0.0.1-beta.3",
+  "version":      "0.0.1-beta.4",
   "description":  "Simple assets delivery across your apps.",
   "author":       "Jico Baligod <jico@baligod.com>",
   "licenses": [
@@ -38,7 +38,7 @@
   },
   "scripts": {
     "compile":  "./node_modules/.bin/coffee -bo . src",
-    "pretest":  "bash scripts/prepare_test_repos.sh && ./node_modules/.bin/coffee -bo . src",
+    "pretest":  "bash scripts/prepare_test_repos.sh && rm -rf test/*.js && ./node_modules/.bin/coffee -bo . src",
     "test":     "./node_modules/.bin/mocha --reporter spec --timeout 40000",
     "watch":    "./node_modules/.bin/coffee -wbo . src"
   }

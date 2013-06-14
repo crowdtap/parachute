@@ -11,17 +11,17 @@ describe 'install', ->
   process.env['HOME'] = testDir
 
   noLocalnoSourceJson =
-    source: "../repos/without_json"
+    src: "../repos/without_json"
   yaLocalnoSourceJson =
-    source: "../repos/without_json"
-    target: "some_folder"
+    src: "../repos/without_json"
+    dest: "some_folder"
   noLocalyaSourceJson =
-    source: "../repos/with_json"
+    src: "../repos/with_json"
   yaLocalyaSourceJson =
-    source: "../repos/with_json"
-    target: "some_folder"
+    src: "../repos/with_json"
+    dest: "some_folder"
   withPostScript =
-    source: "../repos/with_post_scripts"
+    src: "../repos/with_post_scripts"
 
   clean = (done) ->
     rimraf testDir, (err) ->
