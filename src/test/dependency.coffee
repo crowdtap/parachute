@@ -43,7 +43,7 @@ describe 'Dependency', ->
       expect(dependency.cacheDir).to.eql("#{process.env['HOME']}/.parachute/bar-baz")
       done()
 
-    it 'sets the dependency dest directory', (done) ->
+    it 'sets the dependency destination directory', (done) ->
       dependencyWithoutDirectory = new Dependency(remoteDependency)
       dependencyWithDirectory    = new Dependency(remoteDependency, 'css')
       expect(dependencyWithoutDirectory.destDir).to.eql(process.cwd())

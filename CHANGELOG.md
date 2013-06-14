@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.1-beta.4 - 2013-06-13
+
+__Breaking changes:__
+
+* Dependencies in _assets.json_ use `src` instead of `source`.
+* `components` array in source _assets.json_ use `src` and `dest` rather than 
+  `source` and `target`, respectively.
+
 ## v0.0.1-beta.3 - 2013-06-13
 
 * Fix data emission and progress output.
