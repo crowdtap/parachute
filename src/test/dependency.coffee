@@ -45,9 +45,9 @@ describe 'Dependency', ->
 
     it 'sets the dependency destination directory', (done) ->
       dependencyWithoutDirectory = new Dependency(remoteDependency)
-      dependencyWithDirectory    = new Dependency(remoteDependency, 'css')
-      expect(dependencyWithoutDirectory.destDir).to.eql(process.cwd())
-      expect(dependencyWithDirectory.destDir).to.eql('css')
+      dependencyWithDirectory    = new Dependency(remoteDependency, root: 'css')
+      expect(dependencyWithoutDirectory.root).to.eql(process.cwd())
+      expect(dependencyWithDirectory.root).to.eql('css')
       done()
 
     it 'sets whether the dependency source is remote', (done) ->
@@ -112,25 +112,6 @@ describe 'Dependency', ->
           .on 'error', (err) -> throw err
         dependency.copy()
 
-    it 'copies all cache contents if no source dependencys.json exists', (done) ->
-      dependency = new Dependency('../repos/without_json')
-      dependency.on 'error', (err) -> throw err
-      dependency.cache ->
-        dependency.copy ->
-          expect(fs.existsSync('should-copy.txt')).to.be(true)
-          expect(fs.existsSync('css/core.css')).to.be(true)
-          done()
-
-    it 'copies cache contents according to dependencys.json when present', (done) ->
-      dependency = new Dependency('../repos/with_json')
-      dependency.on 'error', (err) -> throw err
-      dependency.cache ->
-        dependency.copy ->
-          expect(fs.existsSync('should-not-copy.txt')).to.be(false)
-          expect(fs.existsSync('css/core.css')).to.be(false)
-          expect(fs.existsSync('css/shared/core.css')).to.be(true)
-          done()
-
     it 'does not copy ignored files from cache', (done) ->
       dependency = new Dependency('../repos/without_json')
       dependency.on 'error', (err) -> throw err
@@ -139,13 +120,58 @@ describe 'Dependency', ->
           expect(fs.existsSync("#{process.cwd()}/.git")).to.be(false)
           done()
 
-    it 'allows a set of variable interpolation within dependencys.json', (done) ->
+    it 'allows a set of variable interpolation within assets.json', (done) ->
       dependency = new Dependency('../repos/with_variables')
       dependency.on 'error', (err) -> throw err
       dependency.cache ->
         dependency.copy ->
           expect(fs.existsSync("css/install_test/core.css")).to.be(true)
           done()
+
+    describe 'source assets.json components option', ->
+      it 'copies all cache contents if no source assets.json exists', (done) ->
+        dependency = new Dependency('../repos/without_json')
+        dependency.on 'error', (err) -> throw err
+        dependency.cache ->
+          dependency.copy ->
+            expect(fs.existsSync('should-copy.txt')).to.be(true)
+            expect(fs.existsSync('css/core.css')).to.be(true)
+            done()
+
+      it 'copies cache contents according to assets.json when present', (done) ->
+        dependency = new Dependency('../repos/with_json')
+        dependency.on 'error', (err) -> throw err
+        dependency.cache ->
+          dependency.copy ->
+            expect(fs.existsSync('should-not-copy.txt')).to.be(false)
+            expect(fs.existsSync('css/core.css')).to.be(false)
+            expect(fs.existsSync('css/shared/core.css')).to.be(true)
+            done()
+
+    describe 'local assets.json files option', ->
+      it 'copies filenames indicated in files option', (done) ->
+        dependency = new Dependency('../repos/without_json', files: ['css/core.css'])
+        dependency.on 'error', (err) -> throw err
+        dependency.cache ->
+          dependency.copy ->
+            expect(fs.existsSync('core.css')).to.be(true)
+            expect(fs.existsSync('should-copy.txt')).to.be(false)
+            done()
+
+      it 'copies file objects indicated in files option', (done) ->
+        files = [
+          {
+            src:  'css/core.css'
+            dest: 'css/shared/core.css'
+          }
+        ]
+        dependency = new Dependency('../repos/without_json', files: files)
+        dependency.on 'error', (err) -> throw err
+        dependency.cache ->
+          dependency.copy ->
+            expect(fs.existsSync('css/shared/core.css')).to.be(true)
+            expect(fs.existsSync('should-copy.txt')).to.be(false)
+            done()
 
   describe '#hasPostScripts', ->
     it 'returns false if cached repo has no post_scripts folder', (done) ->

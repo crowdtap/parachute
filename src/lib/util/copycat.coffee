@@ -12,7 +12,7 @@ path   = require('path')
 mkdirp = require('mkdirp')
 
 module.exports.copy = (src, dest, options, cb) ->
-  throw "#{src} does not exist" unless fs.existsSync(src)
+  throw new Error("#{src} does not exist") unless fs.existsSync(src)
 
   cb = options unless cb?
 
@@ -30,7 +30,8 @@ module.exports.copy = (src, dest, options, cb) ->
     cb?()
 
 module.exports.isDirectoryPath = (pathString) ->
-  _.endsWith(pathString, '/')
+  _.endsWith(pathString, '/') ||
+    fs.existsSync(pathString) && fs.statSync(pathString).isDirectory()
 
 module.exports.parseDestDir = (pathString) ->
   if @isDirectoryPath(pathString)
@@ -39,7 +40,4 @@ module.exports.parseDestDir = (pathString) ->
     pathString.split('/').slice(0, -1).join('/')
 
 module.exports.parseFilename = (pathString) ->
-  if @isDirectoryPath(pathString)
-    null
-  else
-    _.last(pathString.split('/'))
+  if @isDirectoryPath(pathString) then '' else _.last(pathString.split('/'))

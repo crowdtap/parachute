@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.1-beta.5 - 2013-06-16
+
+* New `files` option in _assets.json_.
+
+__Breaking changes:__
+
+* `dest` option in local JSON is now `root`.
+* `components` option in source JSON is now `files`.
+
 ## v0.0.1-beta.4 - 2013-06-13
 
 __Breaking changes:__

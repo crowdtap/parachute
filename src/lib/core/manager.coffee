@@ -1,5 +1,6 @@
 { EventEmitter } = require('events')
 Dependency       = require('./dependency')
+_                = require('../util/lodash-ext')
 
 class Manager extends EventEmitter
   constructor: (dependencies, options) ->
@@ -10,7 +11,8 @@ class Manager extends EventEmitter
     @dependencies = []
 
     for depObj in dependencies
-      dependency = new Dependency(depObj.src, depObj.dest)
+      options = _.omit(depObj, 'src')
+      dependency = new Dependency(depObj.src, options)
       @dependencies.push(dependency)
       # TODO: Test error emissions for each method?
       dependency

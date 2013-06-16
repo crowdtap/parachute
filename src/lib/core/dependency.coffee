@@ -3,13 +3,14 @@ assetVars        = require('./asset_vars')
 copycat          = require('../util/copycat')
 git              = require('../util/git-wrapper')
 template         = require('../util/template')
+_                = require('../util/lodash-ext')
 fs               = require('fs')
 gift             = require('gift')
 path             = require('path')
 spawn            = require('child_process').spawn
 
 class Dependency extends EventEmitter
-  constructor: (@src, dest) ->
+  constructor: (@src, options) ->
     # Recognize git source URL parameters:
     # [original str, http(s), git@, host, trailing path]
     gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*(.*)/
@@ -17,18 +18,17 @@ class Dependency extends EventEmitter
 
     @name      = pathSegments[4].replace('/','-').replace('.git','')
     @cacheDir  = path.join(process.env['HOME'], '.parachute', @name)
-    @destDir   = dest || process.cwd()
+    @root      = options?.root || process.cwd()
     @remote    = pathSegments[1]? || pathSegments[2]?
     @src       = path.resolve(@src) unless @remote
     @repo      = gift @cacheDir
+    @files     = options?.files && @parseFiles(options.files)
 
     @ncpOptions =
       clobber: true
       filter: (filename) ->
-        ignore  = [/\.git/, /assets.json/, /post_scripts/]
-        for regexp in ignore
-          return false if filename.match(regexp)?.length
-        return true
+        ignore = [/\.git/, /assets.json/, /post_scripts/]
+        !_.detect ignore, (regexp) -> filename.match(regexp)?.length
 
   cache: (cb) ->
     template('action', { doing: 'caching', what: @src })
@@ -43,11 +43,9 @@ class Dependency extends EventEmitter
     if @isCached()
       @repo.status (err, status) =>
         if status.clean
-          fs.exists "#{@cacheDir}/assets.json", (hasJson) =>
-            copyType = if hasJson then 'custom' else 'full'
-            @["#{copyType}Copy"](cb)
-            template('action', { doing: 'copying', what: @src })
-              .on 'data', @emit.bind(@, 'data')
+          @copyComponents(cb)
+          template('action', { doing: 'copying', what: @src })
+            .on 'data', @emit.bind(@, 'data')
         else
           @emit 'error', message: 'dependency cache is dirty'
     else
@@ -93,10 +91,23 @@ class Dependency extends EventEmitter
 
   # Private
 
-  customCopy: (cb) ->
-    componentsJson = JSON.parse fs.readFileSync("#{@cacheDir}/assets.json")
-    components     = componentsJson.components
+  parseFiles: (files) ->
+    _.map files, (item) ->
+      if typeof item == 'string' then { src: item, dest: null } else item
 
+  components: ->
+    components = @files || @sourceFiles() || [ src: null, dest: null ]
+    _.map components, (component) =>
+      componentWithAbsPaths =
+        src:  path.join(@cacheDir, component.src  || '')
+        dest: path.join(@root,     component.dest || '')
+
+  sourceFiles: ->
+    if fs.existsSync "#{@cacheDir}/assets.json"
+      JSON.parse(fs.readFileSync("#{@cacheDir}/assets.json")).files
+
+  copyComponents: (cb) ->
+    components = @components()
     if components?.length
       next = (err) =>
         throw err if err
@@ -108,21 +119,11 @@ class Dependency extends EventEmitter
 
       do copyNextComponent = =>
         component = components.shift()
-        source    = path.join @cacheDir, component.src
-        dest      = @subVariables path.join(@destDir, component.dest)
-
-        copycat.copy(source, dest, @ncpOptions, next)
-    else
-      @fullCopy(cb)
-
-  fullCopy: (cb) ->
-    copycat.copy @cacheDir, @destDir, @ncpOptions, (err) =>
-      @emit 'copied', 0
-      cb?(0)
+        copycat.copy(component.src, @subVariables(component.dest), @ncpOptions, next)
 
   subVariables: (string) ->
     for variable in string.match(/{{(\w+)}}/g) || []
-      key = variable.slice(2, -2)
+      key    = variable.slice(2, -2)
       string = string.replace(variable, assetVars[key])
     string
 

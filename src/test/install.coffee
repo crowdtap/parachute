@@ -11,17 +11,17 @@ describe 'install', ->
   process.env['HOME'] = testDir
 
   noLocalnoSourceJson =
-    src: "../repos/without_json"
+    src: "../repos/without_json/"
   yaLocalnoSourceJson =
-    src: "../repos/without_json"
-    dest: "some_folder"
+    src: "../repos/without_json/"
+    root: "some_folder/"
   noLocalyaSourceJson =
-    src: "../repos/with_json"
+    src: "../repos/with_json/"
   yaLocalyaSourceJson =
-    src: "../repos/with_json"
-    dest: "some_folder"
+    src: "../repos/with_json/"
+    root: "some_folder/"
   withPostScript =
-    src: "../repos/with_post_scripts"
+    src: "../repos/with_post_scripts/"
 
   clean = (done) ->
     rimraf testDir, (err) ->
@@ -63,8 +63,8 @@ describe 'install', ->
           expect(status).to.be(0)
           done()
 
-  describe 'without source json', ->
-    it 'saves dependencies into current working directory without local target', (done) ->
+  describe 'without source assets.json', ->
+    it 'saves dependencies into current working directory without root', (done) ->
       install([noLocalnoSourceJson])
         .on 'error', (err) ->
           throw err
@@ -74,7 +74,7 @@ describe 'install', ->
           expect(fs.existsSync('.git')).to.be(false)
           done()
 
-    it 'saves dependencies into local target', (done) ->
+    it 'saves dependencies into root', (done) ->
       install([yaLocalnoSourceJson])
         .on 'error', (err) ->
           throw err
@@ -84,8 +84,8 @@ describe 'install', ->
           expect(fs.existsSync('some_folder/.git')).to.be(false)
           done()
 
-  describe 'with source json', ->
-    it 'saves specified components in current working directory without local target', (done) ->
+  describe 'with source json files option', ->
+    it 'saves specified components in current working directory without root', (done) ->
       install([noLocalyaSourceJson])
         .on 'error', (err) ->
           throw err
@@ -96,7 +96,7 @@ describe 'install', ->
           expect(fs.existsSync('.git')).to.be(false)
           done()
 
-    it 'saves specified components into local target', (done) ->
+    it 'saves specified components into root', (done) ->
       install([yaLocalyaSourceJson])
         .on 'error', (err) ->
           throw err
@@ -105,6 +105,29 @@ describe 'install', ->
           expect(fs.existsSync('some_folder/should-not-copy.txt')).to.be(false)
           expect(fs.existsSync('some_folder/assets.json')).to.be(false)
           expect(fs.existsSync('some_folder/.git')).to.be(false)
+          done()
+
+  describe 'with local files option', ->
+    it 'saves specified components listed as strings', (done) ->
+      json = noLocalyaSourceJson
+      json.files = ['css/core.css']
+      install([json])
+        .on 'error', (err) ->
+          throw err
+        .on 'end', (status) ->
+          expect(fs.existsSync('core.css')).to.be(true)
+          expect(fs.existsSync('should-not-copy.txt')).to.be(false)
+          done()
+
+    it 'saves specified components listed as objects', (done) ->
+      json = noLocalyaSourceJson
+      json.files = [ src: 'css/core.css', dest: 'css/shared/']
+      install([json])
+        .on 'error', (err) ->
+          throw err
+        .on 'end', (status) ->
+          expect(fs.existsSync('css/shared/core.css')).to.be(true)
+          expect(fs.existsSync('css/shared/should-not-copy.txt')).to.be(false)
           done()
 
   describe 'post scripts', ->
