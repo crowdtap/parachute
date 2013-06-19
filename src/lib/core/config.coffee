@@ -15,7 +15,7 @@ dependencies = []
 dependencies = dependencies.concat(require(jsonPath).dependencies) if fs.existsSync(jsonPath)
 
 config =
-  cacheDir: cacheDir
+  cacheDir:     cacheDir
   dependencies: dependencies
 
 module.exports = config

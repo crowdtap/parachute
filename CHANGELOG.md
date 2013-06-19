@@ -1,21 +1,22 @@
 # Changelog
 
+## v0.0.1-beta.6 - 2013-06-19
+
+* Revert `files` option back to `components` (since they don't all necessarily
+  point to a single file). ‡
+
 ## v0.0.1-beta.5 - 2013-06-16
 
 * New `files` option in _assets.json_.
 
-__Breaking changes:__
-
-* `dest` option in local JSON is now `root`.
-* `components` option in source JSON is now `files`.
+* `dest` option in local JSON is now `root`. ‡
+* `components` option in source JSON is now `files`. ‡
 
 ## v0.0.1-beta.4 - 2013-06-13
 
-__Breaking changes:__
-
-* Dependencies in _assets.json_ use `src` instead of `source`.
-* `components` array in source _assets.json_ use `src` and `dest` rather than 
-  `source` and `target`, respectively.
+* Dependencies in _assets.json_ use `src` instead of `source`. ‡
+* `components` array in source _assets.json_ use `src` and `dest` rather than
+  `source` and `target`, respectively. ‡
 
 ## v0.0.1-beta.3 - 2013-06-13
 
@@ -56,3 +57,5 @@ __Breaking changes:__
 ## v0.0.1-alpha.2 - 2013-05-20
 
 * Added update command to `git pull` dependencies.
+
+‡ - Indications breaking changes from previous versions.
