@@ -148,9 +148,9 @@ describe 'Dependency', ->
             expect(fs.existsSync('css/shared/core.css')).to.be(true)
             done()
 
-    describe 'local assets.json files option', ->
-      it 'copies filenames indicated in files option', (done) ->
-        dependency = new Dependency('../repos/without_json', files: ['css/core.css'])
+    describe 'local assets.json components option', ->
+      it 'copies filenames indicated in components option', (done) ->
+        dependency = new Dependency('../repos/without_json', components: ['css/core.css'])
         dependency.on 'error', (err) -> throw err
         dependency.cache ->
           dependency.copy ->
@@ -158,14 +158,14 @@ describe 'Dependency', ->
             expect(fs.existsSync('should-copy.txt')).to.be(false)
             done()
 
-      it 'copies file objects indicated in files option', (done) ->
-        files = [
+      it 'copies file objects indicated in components option', (done) ->
+        components = [
           {
             src:  'css/core.css'
             dest: 'css/shared/core.css'
           }
         ]
-        dependency = new Dependency('../repos/without_json', files: files)
+        dependency = new Dependency('../repos/without_json', components: components)
         dependency.on 'error', (err) -> throw err
         dependency.cache ->
           dependency.copy ->

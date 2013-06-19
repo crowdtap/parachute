@@ -84,7 +84,7 @@ describe 'install', ->
           expect(fs.existsSync('some_folder/.git')).to.be(false)
           done()
 
-  describe 'with source json files option', ->
+  describe 'with source json components option', ->
     it 'saves specified components in current working directory without root', (done) ->
       install([noLocalyaSourceJson])
         .on 'error', (err) ->
@@ -107,10 +107,10 @@ describe 'install', ->
           expect(fs.existsSync('some_folder/.git')).to.be(false)
           done()
 
-  describe 'with local files option', ->
+  describe 'with local components option', ->
     it 'saves specified components listed as strings', (done) ->
       json = noLocalyaSourceJson
-      json.files = ['css/core.css']
+      json.components = ['css/core.css']
       install([json])
         .on 'error', (err) ->
           throw err
@@ -121,7 +121,7 @@ describe 'install', ->
 
     it 'saves specified components listed as objects', (done) ->
       json = noLocalyaSourceJson
-      json.files = [ src: 'css/core.css', dest: 'css/shared/']
+      json.components = [ src: 'css/core.css', dest: 'css/shared/']
       install([json])
         .on 'error', (err) ->
           throw err
