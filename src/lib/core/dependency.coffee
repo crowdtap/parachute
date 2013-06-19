@@ -16,18 +16,18 @@ class Dependency extends EventEmitter
     gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*(.*)/
     pathSegments = @src.match(gitRegex)
 
-    @name      = pathSegments[4].replace('/','-').replace('.git','')
-    @cacheDir  = path.join(process.env['HOME'], '.parachute', @name)
-    @root      = options?.root || process.cwd()
-    @remote    = pathSegments[1]? || pathSegments[2]?
-    @src       = path.resolve(@src) unless @remote
-    @repo      = gift @cacheDir
-    @files     = options?.files && @parseFiles(options.files)
+    @name       = pathSegments[4].replace('/','-').replace('.git','')
+    @cacheDir   = path.join(process.env['HOME'], '.parachute', @name)
+    @root       = options?.root || process.cwd()
+    @remote     = pathSegments[1]? || pathSegments[2]?
+    @src        = path.resolve(@src) unless @remote
+    @repo       = gift @cacheDir
+    @components = options?.components && @parseComponents(options.components)
 
     @ncpOptions =
       clobber: true
       filter: (filename) ->
-        ignore = [/\.git/, /assets.json/, /post_scripts/]
+        ignore = [/\.git/, /parachute.json/, /post_scripts/]
         !_.detect ignore, (regexp) -> filename.match(regexp)?.length
 
   cache: (cb) ->
@@ -91,23 +91,20 @@ class Dependency extends EventEmitter
 
   # Private
 
-  parseFiles: (files) ->
-    _.map files, (item) ->
+  parseComponents: (components) ->
+    _.map components, (item) ->
       if typeof item == 'string' then { src: item, dest: null } else item
 
-  components: ->
-    components = @files || @sourceFiles() || [ src: null, dest: null ]
-    _.map components, (component) =>
+  sourceComponents: ->
+    if fs.existsSync "#{@cacheDir}/parachute.json"
+      JSON.parse(fs.readFileSync("#{@cacheDir}/parachute.json")).components
+
+  copyComponents: (cb) ->
+    components = @components || @sourceComponents() || [ src: null, dest: null ]
+    components = _.map components, (component) =>
       componentWithAbsPaths =
         src:  path.join(@cacheDir, component.src  || '')
         dest: path.join(@root,     component.dest || '')
-
-  sourceFiles: ->
-    if fs.existsSync "#{@cacheDir}/assets.json"
-      JSON.parse(fs.readFileSync("#{@cacheDir}/assets.json")).files
-
-  copyComponents: (cb) ->
-    components = @components()
     if components?.length
       next = (err) =>
         throw err if err

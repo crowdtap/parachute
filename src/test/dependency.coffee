@@ -120,7 +120,7 @@ describe 'Dependency', ->
           expect(fs.existsSync("#{process.cwd()}/.git")).to.be(false)
           done()
 
-    it 'allows a set of variable interpolation within assets.json', (done) ->
+    it 'allows a set of variable interpolation within parachute.json', (done) ->
       dependency = new Dependency('../repos/with_variables')
       dependency.on 'error', (err) -> throw err
       dependency.cache ->
@@ -128,8 +128,8 @@ describe 'Dependency', ->
           expect(fs.existsSync("css/install_test/core.css")).to.be(true)
           done()
 
-    describe 'source assets.json components option', ->
-      it 'copies all cache contents if no source assets.json exists', (done) ->
+    describe 'source parachute.json components option', ->
+      it 'copies all cache contents if no source parachute.json exists', (done) ->
         dependency = new Dependency('../repos/without_json')
         dependency.on 'error', (err) -> throw err
         dependency.cache ->
@@ -138,7 +138,7 @@ describe 'Dependency', ->
             expect(fs.existsSync('css/core.css')).to.be(true)
             done()
 
-      it 'copies cache contents according to assets.json when present', (done) ->
+      it 'copies cache contents according to parachute.json when present', (done) ->
         dependency = new Dependency('../repos/with_json')
         dependency.on 'error', (err) -> throw err
         dependency.cache ->
@@ -148,9 +148,9 @@ describe 'Dependency', ->
             expect(fs.existsSync('css/shared/core.css')).to.be(true)
             done()
 
-    describe 'local assets.json files option', ->
-      it 'copies filenames indicated in files option', (done) ->
-        dependency = new Dependency('../repos/without_json', files: ['css/core.css'])
+    describe 'local parachute.json components option', ->
+      it 'copies filenames indicated in components option', (done) ->
+        dependency = new Dependency('../repos/without_json', components: ['css/core.css'])
         dependency.on 'error', (err) -> throw err
         dependency.cache ->
           dependency.copy ->
@@ -158,14 +158,14 @@ describe 'Dependency', ->
             expect(fs.existsSync('should-copy.txt')).to.be(false)
             done()
 
-      it 'copies file objects indicated in files option', (done) ->
-        files = [
+      it 'copies file objects indicated in components option', (done) ->
+        components = [
           {
             src:  'css/core.css'
             dest: 'css/shared/core.css'
           }
         ]
-        dependency = new Dependency('../repos/without_json', files: files)
+        dependency = new Dependency('../repos/without_json', components: components)
         dependency.on 'error', (err) -> throw err
         dependency.cache ->
           dependency.copy ->
