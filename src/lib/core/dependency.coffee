@@ -27,7 +27,7 @@ class Dependency extends EventEmitter
     @ncpOptions =
       clobber: true
       filter: (filename) ->
-        ignore = [/\.git/, /assets.json/, /post_scripts/]
+        ignore = [/\.git/, /parachute.json/, /post_scripts/]
         !_.detect ignore, (regexp) -> filename.match(regexp)?.length
 
   cache: (cb) ->
@@ -96,8 +96,8 @@ class Dependency extends EventEmitter
       if typeof item == 'string' then { src: item, dest: null } else item
 
   sourceComponents: ->
-    if fs.existsSync "#{@cacheDir}/assets.json"
-      JSON.parse(fs.readFileSync("#{@cacheDir}/assets.json")).components
+    if fs.existsSync "#{@cacheDir}/parachute.json"
+      JSON.parse(fs.readFileSync("#{@cacheDir}/parachute.json")).components
 
   copyComponents: (cb) ->
     components = @components || @sourceComponents() || [ src: null, dest: null ]

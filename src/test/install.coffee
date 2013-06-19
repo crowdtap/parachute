@@ -63,7 +63,7 @@ describe 'install', ->
           expect(status).to.be(0)
           done()
 
-  describe 'without source assets.json', ->
+  describe 'without source parachute.json', ->
     it 'saves dependencies into current working directory without root', (done) ->
       install([noLocalnoSourceJson])
         .on 'error', (err) ->
@@ -92,7 +92,7 @@ describe 'install', ->
         .on 'end', (status) ->
           expect(fs.existsSync('css/shared/core.css')).to.be(true)
           expect(fs.existsSync('should-not-copy.txt')).to.be(false)
-          expect(fs.existsSync('assets.json')).to.be(false)
+          expect(fs.existsSync('parachute.json')).to.be(false)
           expect(fs.existsSync('.git')).to.be(false)
           done()
 
@@ -103,7 +103,7 @@ describe 'install', ->
         .on 'end', (status) ->
           expect(fs.existsSync('some_folder/css/shared/core.css')).to.be(true)
           expect(fs.existsSync('some_folder/should-not-copy.txt')).to.be(false)
-          expect(fs.existsSync('some_folder/assets.json')).to.be(false)
+          expect(fs.existsSync('some_folder/parachute.json')).to.be(false)
           expect(fs.existsSync('some_folder/.git')).to.be(false)
           done()
 

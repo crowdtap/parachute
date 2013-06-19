@@ -9,8 +9,8 @@ home = process.env['HOME']
 cacheDir = path.join(home, '.parachute')
 fs.exists cacheDir, (exists) -> mkdirp(cacheDir) unless exists
 
-# Dependencies from assets.json
-jsonPath = path.join(cwd, 'assets.json')
+# Dependencies from parachute.json
+jsonPath = path.join(cwd, 'parachute.json')
 dependencies = []
 dependencies = dependencies.concat(require(jsonPath).dependencies) if fs.existsSync(jsonPath)
 
