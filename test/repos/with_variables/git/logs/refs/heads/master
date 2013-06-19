@@ -4,3 +4,5 @@
 32d476764081d4172cd6cc8433e32c9e427d1dc3 5133ebd6f8776c4948ba2712d218ee329466650b Jico Baligod <jico@baligod.com> 1371161884 -0400	commit: s/target/dest
 5133ebd6f8776c4948ba2712d218ee329466650b 1bcd9e6a0494e36409fbb7a3c91ddc9924820d85 Jico Baligod <jico@baligod.com> 1371161958 -0400	commit: s/source/src/g
 1bcd9e6a0494e36409fbb7a3c91ddc9924820d85 8a2376613b0350335c861e94459f0bb565c076e1 Jico Baligod <jico@baligod.com> 1371388103 -0400	commit: s/components/files/g
+8a2376613b0350335c861e94459f0bb565c076e1 f02547fef639de93ec947a2a4d8c14962ef6de2f Jico Baligod <jico@baligod.com> 1371659335 -0400	commit: s/files/components
+f02547fef639de93ec947a2a4d8c14962ef6de2f 3d8553c6f37f100b61ca9f219e23cf9ad1889820 Jico Baligod <jico@baligod.com> 1371667034 -0400	commit: rename assets.json to parachute.json
