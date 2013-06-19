@@ -2,6 +2,7 @@
 
 ## v0.0.1-beta.6 - 2013-06-19
 
+* Read __parachute.json__ instead of __assets.json__. ‡
 * Revert `files` option back to `components` (since they don't all necessarily
   point to a single file). ‡
 
