@@ -173,3 +173,9 @@ describe 'Dependency', ->
       expect(stub1.calledOnce).to.be(true)
       expect(stub2.calledOnce).to.be(true)
       done()
+
+  describe 'xxx #runScript', ->
+    it 'executes the script name', (done) ->
+      console.log '**************************************'
+      console.log require
+      done()

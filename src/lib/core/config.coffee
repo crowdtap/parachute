@@ -14,8 +14,13 @@ jsonPath = path.join(cwd, 'parachute.json')
 dependencies = []
 dependencies = dependencies.concat(require(jsonPath).dependencies) if fs.existsSync(jsonPath)
 
+# Scripts
+scripts = []
+scripts = scripts.concat(require(jsonPath).scripts) if fs.existsSync(jsonPath)
+
 config =
   cacheDir:     cacheDir
   dependencies: dependencies
+  scripts:      scripts
 
 module.exports = config

@@ -1,6 +1,7 @@
 { EventEmitter } = require('events')
 Dependency       = require('./dependency')
 _                = require('../util/lodash-ext')
+exec             = require('child_process').exec
 
 class Manager extends EventEmitter
   constructor: (dependencies, options) ->
@@ -42,6 +43,13 @@ class Manager extends EventEmitter
   update: ->
     for dependency in @dependencies
       dependency.update => @tick('updated')
+
+  runScript: (scriptName) ->
+    # preinstall
+    # postinstall, install
+    line = config.scripts[scriptName]
+    if line?
+      exec line, (err, stdout, stderr) -> console.log(stdout)
 
   # Private
 
