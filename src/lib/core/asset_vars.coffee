@@ -1,15 +1,19 @@
+_ = require('../util/lodash-ext')
+
 module.exports =
   dirName: ->
     dirs = process.cwd().split('/')
     dirs[dirs.length - 1]
+
   month: ->
-    month = (new Date).getMonth() + 1
-    if month < 10 then ('0' + month) else month
+    _.lpad(((new Date).getMonth() + 1).toString(), 2)
+
   day: ->
-    date = (new Date).getDate()
-    if date < 10 then ('0' + date) else date
+    _.lpad((new Date).getDate().toString(), 2)
+
   year: ->
     (new Date).getFullYear()
+
   date: ->
     me = module.exports
     "#{me.year()}-#{me.month()}-#{me.day()}"

@@ -129,7 +129,7 @@ describe 'Dependency', ->
           expect(fs.existsSync("css/install_test/core.css")).to.be(true)
           done()
 
-    it 'allows a set of date variable interpolation within parachute.json', (done) ->
+    it 'allows a start of the year date variable interpolation within parachute.json', (done) ->
       dependency = new Dependency('../repos/with_variables')
       dependency.on 'error', (err) -> throw err
       timekeeper.travel(new Date(2013, 0, 1))
@@ -139,7 +139,7 @@ describe 'Dependency', ->
           expect(fs.existsSync("css/fonts-2013-01-01.css")).to.be(true)
           done()
 
-    it 'allows a set of date variable interpolation within parachute.json', (done) ->
+    it 'allows an end of the year date variable interpolation within parachute.json', (done) ->
       dependency = new Dependency('../repos/with_variables')
       dependency.on 'error', (err) -> throw err
       timekeeper.travel(new Date(2013, 11, 31))
