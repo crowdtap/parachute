@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.0.1-beta.7 - 2013-06-24
+
+* Drop support for running scripts in `post_scripts` directory. ‡
+* Adds `scripts` option for clients' `parachute.json` which run the following
+  recognized scripts: `preresolve`, `postresolve`, `preinstall`, and
+  `postinstall`.
+
 ## v0.0.1-beta.6 - 2013-06-19
 
 * Read __parachute.json__ instead of __assets.json__. ‡

@@ -1,6 +1,8 @@
 { EventEmitter } = require('events')
 Dependency       = require('./dependency')
 _                = require('../util/lodash-ext')
+template         = require('../util/template')
+exec             = require('child_process').exec
 
 class Manager extends EventEmitter
   constructor: (dependencies, options) ->
@@ -20,6 +22,9 @@ class Manager extends EventEmitter
         .on('error', @emit.bind(@, 'error'))
 
   resolve: ->
+    @runScript('preresolve')
+    @on 'resolved', => @runScript('postresolve')
+
     for dependency in @dependencies
       if dependency.isCached()
         if @config.options.update
@@ -30,18 +35,24 @@ class Manager extends EventEmitter
         dependency.cache => @tick('resolved')
 
   install: ->
+    @runScript('preinstall')
+    @on 'installed', => @runScript('postinstall')
+
     for dependency in @dependencies
-      dependency.copy =>
-        if dependency.hasPostScripts()
-          dependency
-            .on('post_scripts_complete', => @tick('installed'))
-            .runPostScripts()
-        else
-          @tick('installed')
+      dependency.copy => @tick('installed')
 
   update: ->
     for dependency in @dependencies
       dependency.update => @tick('updated')
+
+  runScript: (scriptName) ->
+    if (line = @config.options.scripts?[scriptName])?
+      exec line, (err, stdout, stderr) =>
+        @emit('error', err)    if err?
+        @emit('error', stderr) if stderr?.length
+        @emit('data',  stdout) if stdout?.length
+        template('script', { which: scriptName, command: line })
+          .on 'data', @emit.bind(@, 'data')
 
   # Private
 

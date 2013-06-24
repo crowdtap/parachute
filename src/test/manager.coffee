@@ -6,7 +6,7 @@ expect           = require('expect.js')
 rimraf           = require('rimraf')
 sinon            = require('sinon')
 
-describe 'Dependency', ->
+describe 'Manager', ->
   cwd     = process.cwd()
   testDir = "#{__dirname}/install_test"
   config  =
@@ -81,15 +81,15 @@ describe 'Dependency', ->
       done()
 
     it 'updates already cached dependencies', (done) ->
-      @manager = new Manager(config.dependencies, update: true)
-      sinon.stub @manager.dependencies[0], 'isCached', -> true
-      sinon.stub @manager.dependencies[1], 'isCached', -> true
-      stubCache1 = sinon.stub @manager.dependencies[0], 'cache', (cb) -> cb?()
-      stubCache2 = sinon.stub @manager.dependencies[1], 'cache', (cb) -> cb?()
-      stubUpdate1 = sinon.stub @manager.dependencies[0], 'update', (cb) -> cb?()
-      stubUpdate2 = sinon.stub @manager.dependencies[1], 'update', (cb) -> cb?()
+      manager = new Manager(config.dependencies, update: true)
+      sinon.stub manager.dependencies[0], 'isCached', -> true
+      sinon.stub manager.dependencies[1], 'isCached', -> true
+      stubCache1 = sinon.stub manager.dependencies[0], 'cache', (cb) -> cb?()
+      stubCache2 = sinon.stub manager.dependencies[1], 'cache', (cb) -> cb?()
+      stubUpdate1 = sinon.stub manager.dependencies[0], 'update', (cb) -> cb?()
+      stubUpdate2 = sinon.stub manager.dependencies[1], 'update', (cb) -> cb?()
 
-      @manager
+      manager
         .on 'error', (err) ->
           throw err
         .resolve()
@@ -100,11 +100,48 @@ describe 'Dependency', ->
       expect(stubUpdate2.calledOnce).to.be(true)
       done()
 
+    it 'runs resolve scripts', (done) ->
+      resolvedCount = 0
+      preresolve    = false
+      postresolve   = false
+
+      scripts =
+        preresolve:  'foo'
+        postresolve: 'bar'
+      manager = new Manager(config.dependencies, scripts: scripts)
+
+      cacheFn = (cb) ->
+        resolvedCount++
+        cb?()
+
+      sinon.stub manager.dependencies[0], 'isCached', -> false
+      sinon.stub manager.dependencies[1], 'isCached', -> false
+      sinon.stub manager.dependencies[0], 'cache', cacheFn
+      sinon.stub manager.dependencies[1], 'cache', cacheFn
+
+      runScriptStub = sinon.stub manager, 'runScript', (name) ->
+        preresolve  = true if resolvedCount == 0 && name == 'preresolve'
+        postresolve = true if resolvedCount == 2 && name == 'postresolve'
+
+      manager
+        .on 'error', (err) ->
+          throw err
+        .on 'resolved', ->
+          # XXX There is a slight delay between catching the "resolve"
+          # event here, and when @runScript is called
+          setTimeout ->
+            expect(runScriptStub.calledWith('preresolve')).to.be(true)
+            expect(runScriptStub.calledWith('postresolve')).to.be(true)
+            expect(preresolve).to.be(true)
+            expect(postresolve).to.be(true)
+            done()
+          , 20
+        .resolve()
+
   describe '#install', ->
     it 'emits an installed event', (done) ->
       for dependency in @manager.dependencies
         sinon.stub dependency, 'copy', (cb) -> cb?()
-        sinon.stub dependency, 'hasPostScripts', -> false
 
       @manager
         .on 'error', (err) ->
@@ -117,8 +154,6 @@ describe 'Dependency', ->
     it 'copies dependencies', (done) ->
       stub1 = sinon.stub @manager.dependencies[0], 'copy', (cb) -> cb?()
       stub2 = sinon.stub @manager.dependencies[1], 'copy', (cb) -> cb?()
-      for dependency in @manager.dependencies
-        sinon.stub dependency, 'hasPostScripts', -> false
 
       @manager
         .on 'error', (err) ->
@@ -129,24 +164,41 @@ describe 'Dependency', ->
       expect(stub2.calledOnce).to.be(true)
       done()
 
-    it 'runs post scripts after copy', (done) ->
-      sinon.stub @manager.dependencies[0], 'copy', (cb) -> cb?()
-      sinon.stub @manager.dependencies[1], 'copy', (cb) -> cb?()
-      stubHas1 = sinon.stub @manager.dependencies[0], 'hasPostScripts', -> true
-      stubHas2 = sinon.stub @manager.dependencies[1], 'hasPostScripts', -> false
-      stubRun1 = sinon.stub @manager.dependencies[0], 'runPostScripts', (cb) -> cb?()
-      stubRun2 = sinon.stub @manager.dependencies[1], 'runPostScripts', (cb) -> cb?()
+    it 'runs install scripts', (done) ->
+      installCount = 0
+      preinstall   = false
+      postinstall  = false
 
-      @manager
+      scripts =
+        preinstall:  'foo'
+        postinstall: 'bar'
+      manager = new Manager(config.dependencies, scripts: scripts)
+
+      copyFn = (cb) ->
+        installCount++
+        cb?()
+
+      sinon.stub manager.dependencies[0], 'copy', copyFn
+      sinon.stub manager.dependencies[1], 'copy', copyFn
+
+      runScriptStub = sinon.stub manager, 'runScript', (name) ->
+        preinstall  = true if installCount == 0 && name == 'preinstall'
+        postinstall = true if installCount == 2 && name == 'postinstall'
+
+      manager
         .on 'error', (err) ->
           throw err
+        .on 'installed', ->
+          # XXX There is a slight delay between catching the "installed"
+          # event here, and when @runScript is called
+          setTimeout ->
+            expect(runScriptStub.calledWith('preinstall')).to.be(true)
+            expect(runScriptStub.calledWith('postinstall')).to.be(true)
+            expect(preinstall).to.be(true)
+            expect(postinstall).to.be(true)
+            done()
+          , 20
         .install()
-
-      expect(stubHas1.calledOnce).to.be(true)
-      expect(stubHas2.calledOnce).to.be(true)
-      expect(stubRun1.calledOnce).to.be(true)
-      expect(stubRun2.calledOnce).to.be(false)
-      done()
 
   describe '#update', ->
     it 'emits an updated event', (done) ->
@@ -173,3 +225,14 @@ describe 'Dependency', ->
       expect(stub1.calledOnce).to.be(true)
       expect(stub2.calledOnce).to.be(true)
       done()
+
+  describe '#runScript', ->
+    it 'executes the script name', (done) ->
+      manager = new Manager(config.dependencies, scripts: { foo: "pwd" })
+      manager
+        .on 'error', (err) ->
+          throw err
+        .once 'data', (data) ->
+          expect(data.toString()).to.contain(process.env.HOME)
+          done()
+        .runScript('foo')

@@ -20,8 +20,6 @@ describe 'install', ->
   yaLocalyaSourceJson =
     src: "../repos/with_json/"
     root: "some_folder/"
-  withPostScript =
-    src: "../repos/with_post_scripts/"
 
   clean = (done) ->
     rimraf testDir, (err) ->
@@ -130,22 +128,29 @@ describe 'install', ->
           expect(fs.existsSync('css/shared/should-not-copy.txt')).to.be(false)
           done()
 
-  describe 'post scripts', ->
-    it 'does not copy post_scripts directory', (done) ->
-      install([withPostScript])
-        .on 'error', (err) ->
-          throw err
-        .on 'end', (status) ->
-          expect(fs.existsSync('post_scripts')).to.be(false)
-          done()
+  describe 'scripts', ->
+    it 'runs install and resolve scripts', (done) ->
+      scripts =
+        preresolve:  'touch preresolve_script.txt'
+        postresolve: 'touch postresolve_script.txt'
+        preinstall:  'touch preinstall_script.txt'
+        postinstall: 'touch postinstall_script.txt'
 
-    it 'runs post scripts after install', (done) ->
-      expect(fs.existsSync('post_script_1.txt')).to.be(false)
-      expect(fs.existsSync('post_script_2.txt')).to.be(false)
-      install([withPostScript])
+      expect(fs.existsSync('preresolve_script.txt')).to.be(false)
+      expect(fs.existsSync('postresolve_script.txt')).to.be(false)
+      expect(fs.existsSync('preinstall_script.txt')).to.be(false)
+      expect(fs.existsSync('postinstall_script.txt')).to.be(false)
+
+      install([noLocalnoSourceJson], scripts: scripts)
         .on 'error', (err) ->
           throw err
         .on 'end', (status) ->
-          expect(fs.existsSync('post_script_1.txt')).to.be(true)
-          expect(fs.existsSync('post_script_2.txt')).to.be(true)
-          done()
+          # XXX There is a slight delay between catching the "end"
+          # event here, and when @runScript is called
+          setTimeout ->
+            expect(fs.existsSync('preresolve_script.txt')).to.be(true)
+            expect(fs.existsSync('postresolve_script.txt')).to.be(true)
+            expect(fs.existsSync('preinstall_script.txt')).to.be(true)
+            expect(fs.existsSync('postinstall_script.txt')).to.be(true)
+            done()
+          , 20
