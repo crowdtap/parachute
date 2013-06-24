@@ -129,11 +129,15 @@ describe 'install', ->
           done()
 
   describe 'scripts', ->
-    scripts =
-      preinstall:  'touch preinstall_script.txt'
-      postinstall: 'touch postinstall_script.txt'
+    it 'runs install and resolve scripts', (done) ->
+      scripts =
+        preresolve:  'touch preresolve_script.txt'
+        postresolve: 'touch postresolve_script.txt'
+        preinstall:  'touch preinstall_script.txt'
+        postinstall: 'touch postinstall_script.txt'
 
-    it 'runs install scripts', (done) ->
+      expect(fs.existsSync('preresolve_script.txt')).to.be(false)
+      expect(fs.existsSync('postresolve_script.txt')).to.be(false)
       expect(fs.existsSync('preinstall_script.txt')).to.be(false)
       expect(fs.existsSync('postinstall_script.txt')).to.be(false)
       install([noLocalnoSourceJson], scripts: scripts)
@@ -143,6 +147,8 @@ describe 'install', ->
           # XXX There is a slight delay between catching the "end"
           # event here, and when @runScript is called
           setTimeout ->
+            expect(fs.existsSync('preresolve_script.txt')).to.be(true)
+            expect(fs.existsSync('postresolve_script.txt')).to.be(true)
             expect(fs.existsSync('preinstall_script.txt')).to.be(true)
             expect(fs.existsSync('postinstall_script.txt')).to.be(true)
             done()
