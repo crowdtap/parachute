@@ -1,6 +1,6 @@
 {
   "name":         "parachute",
-  "version":      "0.0.1-beta.7",
+  "version":      "0.0.1-beta.8",
   "description":  "Simple assets delivery across many applications.",
   "author":       "Jico Baligod <jico@baligod.com>",
   "licenses": [

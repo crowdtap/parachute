@@ -6,10 +6,10 @@ module.exports =
     dirs[dirs.length - 1]
 
   month: ->
-    _.lpad(((new Date).getMonth() + 1).toString(), 2)
+    _.lpad((new Date).getMonth() + 1, 2)
 
   day: ->
-    _.lpad((new Date).getDate().toString(), 2)
+    _.lpad((new Date).getDate(), 2)
 
   year: ->
     (new Date).getFullYear()

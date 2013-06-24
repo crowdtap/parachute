@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.1-beta.8 - 2013-06-24
+
+* Adds `year`, `month`, `day`, and `date` path variables. ‡
+
 ## v0.0.1-beta.7 - 2013-06-24
 
 * Drop support for running scripts in `post_scripts` directory. ‡
