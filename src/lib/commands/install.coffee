@@ -30,8 +30,7 @@ module.exports = (dependencies, options) ->
   return emitter
 
 module.exports.line = (argv) ->
-  options = nopt(optionTypes, shorthand, argv)
-  options = _.extend(options, config.options)
+  options = _.extend(nopt(optionTypes, shorthand, argv), config.options)
   if options.help
     help('install')
   else
