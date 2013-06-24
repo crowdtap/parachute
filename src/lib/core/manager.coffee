@@ -45,11 +45,6 @@ class Manager extends EventEmitter
       dependency.update => @tick('updated')
 
   runScript: (scriptName) ->
-    # precache
-    # postcache, cache
-    # preinstall
-    # postinstall, install
-
     if (line = @config.options.scripts?[scriptName])?
       exec line, (err, stdout, stderr) =>
         @emit('error', err)    if err?
