@@ -36,6 +36,12 @@ Dependencies are listed in `parachute.json`, and have the following options:
 * `root` - Root directory for files copied on install. Destinations dictated by a host's `components` option or a client dependency's `files` option are relative to this value. [Default: current working directory]
 * `files` - Array of specific files to copy from host. Array elements can either be a string of the filename (which gets copied into the `root` folder) or an object with a `src` and `dest` property.
 
+Client options:
+
+* `scripts` - Commands to execute at predefined points in the install process.
+  The following are recognized: `preresolve`, `postresolve`, `preinstall`, and
+  `postinstall`.
+
 Example:
 
 ```javascript
@@ -59,7 +65,10 @@ Example:
         }
       ]
     }
-  ]
+  ],
+  "scripts": {
+    "preinstall": "rm -rf shared/"
+  }
 }
 ```
 
