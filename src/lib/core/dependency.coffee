@@ -51,31 +51,8 @@ class Dependency extends EventEmitter
     else
       @emit 'error', message: 'dependency is not cached'
 
-  hasPostScripts: ->
-    if @isCached()
-      fs.existsSync path.join(@cacheDir, 'post_scripts')
-    else
-      @emit 'error', message: 'dependency is not cached'
-
   isCached: ->
     fs.existsSync(@cacheDir)
-
-  runPostScripts: ->
-    if @isCached()
-      postScriptsDir = path.join @cacheDir, 'post_scripts'
-      scripts_queue  = fs.readdirSync postScriptsDir
-
-      do execNextScript = =>
-        if (filename = scripts_queue.shift())?
-          filepath = path.join(postScriptsDir, filename)
-          if fs.statSync(filepath).isFile()
-            template('action', { doing: 'post script', what: filename })
-              .on 'data', @emit.bind(@, 'data')
-            spawn('sh', [filepath]).on('exit', execNextScript)
-        else
-          @emit 'post_scripts_complete'
-    else
-      @emit 'error', message: 'dependency is not cached'
 
   update: (cb) ->
     @repo.status (err, status) =>

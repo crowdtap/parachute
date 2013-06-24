@@ -34,14 +34,11 @@ class Manager extends EventEmitter
         dependency.cache => @tick('resolved')
 
   install: ->
+    @runScript('preinstall')
+    @on 'installed', => @runScript('postinstall')
+
     for dependency in @dependencies
-      dependency.copy =>
-        if dependency.hasPostScripts()
-          dependency
-            .on('post_scripts_complete', => @tick('installed'))
-            .runPostScripts()
-        else
-          @tick('installed')
+      dependency.copy => @tick('installed')
 
   update: ->
     for dependency in @dependencies

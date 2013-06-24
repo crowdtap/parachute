@@ -142,7 +142,6 @@ describe 'Manager', ->
     it 'emits an installed event', (done) ->
       for dependency in @manager.dependencies
         sinon.stub dependency, 'copy', (cb) -> cb?()
-        sinon.stub dependency, 'hasPostScripts', -> false
 
       @manager
         .on 'error', (err) ->
@@ -155,8 +154,6 @@ describe 'Manager', ->
     it 'copies dependencies', (done) ->
       stub1 = sinon.stub @manager.dependencies[0], 'copy', (cb) -> cb?()
       stub2 = sinon.stub @manager.dependencies[1], 'copy', (cb) -> cb?()
-      for dependency in @manager.dependencies
-        sinon.stub dependency, 'hasPostScripts', -> false
 
       @manager
         .on 'error', (err) ->
@@ -167,24 +164,41 @@ describe 'Manager', ->
       expect(stub2.calledOnce).to.be(true)
       done()
 
-    it 'runs post scripts after copy', (done) ->
-      sinon.stub @manager.dependencies[0], 'copy', (cb) -> cb?()
-      sinon.stub @manager.dependencies[1], 'copy', (cb) -> cb?()
-      stubHas1 = sinon.stub @manager.dependencies[0], 'hasPostScripts', -> true
-      stubHas2 = sinon.stub @manager.dependencies[1], 'hasPostScripts', -> false
-      stubRun1 = sinon.stub @manager.dependencies[0], 'runPostScripts', (cb) -> cb?()
-      stubRun2 = sinon.stub @manager.dependencies[1], 'runPostScripts', (cb) -> cb?()
+    it 'runs install scripts', (done) ->
+      installCount = 0
+      preinstall   = false
+      postinstall  = false
 
-      @manager
+      scripts =
+        preinstall:  'foo'
+        postinstall: 'bar'
+      manager = new Manager(config.dependencies, scripts: scripts)
+
+      copyFn = (cb) ->
+        installCount++
+        cb?()
+
+      sinon.stub manager.dependencies[0], 'copy', copyFn
+      sinon.stub manager.dependencies[1], 'copy', copyFn
+
+      runScriptStub = sinon.stub manager, 'runScript', (name) ->
+        preinstall  = true if installCount == 0 && name == 'preinstall'
+        postinstall = true if installCount == 2 && name == 'postinstall'
+
+      manager
         .on 'error', (err) ->
           throw err
+        .on 'installed', ->
+          # XXX There is a slight delay between catching the "installed"
+          # event here, and when @runScript is called
+          setTimeout ->
+            expect(runScriptStub.calledWith('preinstall')).to.be(true)
+            expect(runScriptStub.calledWith('postinstall')).to.be(true)
+            expect(preinstall).to.be(true)
+            expect(postinstall).to.be(true)
+            done()
+          , 20
         .install()
-
-      expect(stubHas1.calledOnce).to.be(true)
-      expect(stubHas2.calledOnce).to.be(true)
-      expect(stubRun1.calledOnce).to.be(true)
-      expect(stubRun2.calledOnce).to.be(false)
-      done()
 
   describe '#update', ->
     it 'emits an updated event', (done) ->
