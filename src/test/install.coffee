@@ -140,6 +140,7 @@ describe 'install', ->
       expect(fs.existsSync('postresolve_script.txt')).to.be(false)
       expect(fs.existsSync('preinstall_script.txt')).to.be(false)
       expect(fs.existsSync('postinstall_script.txt')).to.be(false)
+
       install([noLocalnoSourceJson], scripts: scripts)
         .on 'error', (err) ->
           throw err
