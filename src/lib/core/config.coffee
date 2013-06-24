@@ -7,16 +7,15 @@ home = process.env['HOME']
 
 # Git cache directory
 cacheDir = path.join(home, '.parachute')
-fs.exists cacheDir, (exists) -> mkdirp(cacheDir) unless exists
+mkdirp(cacheDir) unless fs.existsSync(cacheDir)
 
-# Dependencies from parachute.json
-jsonPath = path.join(cwd, 'parachute.json')
+jsonPath     = path.join(cwd, 'parachute.json')
 dependencies = []
-dependencies = dependencies.concat(require(jsonPath).dependencies) if fs.existsSync(jsonPath)
+scripts      = {}
 
-# Scripts
-scripts = {}
-scripts = require(jsonPath).scripts if fs.existsSync(jsonPath)
+if fs.existsSync(jsonPath)
+  dependencies = dependencies.concat(require(jsonPath).dependencies)
+  scripts      = require(jsonPath).scripts
 
 config =
   cacheDir:     cacheDir
