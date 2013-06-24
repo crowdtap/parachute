@@ -6,7 +6,7 @@ expect           = require('expect.js')
 rimraf           = require('rimraf')
 sinon            = require('sinon')
 
-describe 'Dependency', ->
+describe 'Manager', ->
   cwd     = process.cwd()
   testDir = "#{__dirname}/install_test"
   config  =
@@ -81,15 +81,15 @@ describe 'Dependency', ->
       done()
 
     it 'updates already cached dependencies', (done) ->
-      @manager = new Manager(config.dependencies, update: true)
-      sinon.stub @manager.dependencies[0], 'isCached', -> true
-      sinon.stub @manager.dependencies[1], 'isCached', -> true
-      stubCache1 = sinon.stub @manager.dependencies[0], 'cache', (cb) -> cb?()
-      stubCache2 = sinon.stub @manager.dependencies[1], 'cache', (cb) -> cb?()
-      stubUpdate1 = sinon.stub @manager.dependencies[0], 'update', (cb) -> cb?()
-      stubUpdate2 = sinon.stub @manager.dependencies[1], 'update', (cb) -> cb?()
+      manager = new Manager(config.dependencies, update: true)
+      sinon.stub manager.dependencies[0], 'isCached', -> true
+      sinon.stub manager.dependencies[1], 'isCached', -> true
+      stubCache1 = sinon.stub manager.dependencies[0], 'cache', (cb) -> cb?()
+      stubCache2 = sinon.stub manager.dependencies[1], 'cache', (cb) -> cb?()
+      stubUpdate1 = sinon.stub manager.dependencies[0], 'update', (cb) -> cb?()
+      stubUpdate2 = sinon.stub manager.dependencies[1], 'update', (cb) -> cb?()
 
-      @manager
+      manager
         .on 'error', (err) ->
           throw err
         .resolve()
@@ -99,6 +99,44 @@ describe 'Dependency', ->
       expect(stubUpdate1.calledOnce).to.be(true)
       expect(stubUpdate2.calledOnce).to.be(true)
       done()
+
+    it 'runs resolve scripts', (done) ->
+      resolvedCount = 0
+      preresolve    = false
+      postresolve   = false
+
+      scripts =
+        preresolve:  'foo'
+        postresolve: 'bar'
+      manager = new Manager(config.dependencies, scripts: scripts)
+
+      cacheFn = (cb) ->
+        resolvedCount++
+        cb?()
+
+      sinon.stub manager.dependencies[0], 'isCached', -> false
+      sinon.stub manager.dependencies[1], 'isCached', -> false
+      sinon.stub manager.dependencies[0], 'cache', cacheFn
+      sinon.stub manager.dependencies[1], 'cache', cacheFn
+
+      runScriptStub = sinon.stub manager, 'runScript', (name) ->
+        preresolve  = true if resolvedCount == 0 && name == 'preresolve'
+        postresolve = true if resolvedCount == 2 && name == 'postresolve'
+
+      manager
+        .on 'error', (err) ->
+          throw err
+        .on 'resolved', ->
+          # XXX There is a slight delay between catching the "resolve"
+          # event here, and when @runScript is called
+          setTimeout ->
+            expect(runScriptStub.calledWith('preresolve')).to.be(true)
+            expect(runScriptStub.calledWith('postresolve')).to.be(true)
+            expect(preresolve).to.be(true)
+            expect(postresolve).to.be(true)
+            done()
+          , 20
+        .resolve()
 
   describe '#install', ->
     it 'emits an installed event', (done) ->

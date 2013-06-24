@@ -21,6 +21,9 @@ class Manager extends EventEmitter
         .on('error', @emit.bind(@, 'error'))
 
   resolve: ->
+    @runScript('preresolve')
+    @on 'resolved', => @runScript('postresolve')
+
     for dependency in @dependencies
       if dependency.isCached()
         if @config.options.update
@@ -50,7 +53,7 @@ class Manager extends EventEmitter
     # preinstall
     # postinstall, install
 
-    if (line = @config.options.scripts[scriptName])?
+    if (line = @config.options.scripts?[scriptName])?
       exec line, (err, stdout, stderr) =>
         @emit('error', err)    if err?
         @emit('error', stderr) if stderr?.length
