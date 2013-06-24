@@ -6,3 +6,4 @@
 1bcd9e6a0494e36409fbb7a3c91ddc9924820d85 8a2376613b0350335c861e94459f0bb565c076e1 Jico Baligod <jico@baligod.com> 1371388103 -0400	commit: s/components/files/g
 8a2376613b0350335c861e94459f0bb565c076e1 f02547fef639de93ec947a2a4d8c14962ef6de2f Jico Baligod <jico@baligod.com> 1371659335 -0400	commit: s/files/components
 f02547fef639de93ec947a2a4d8c14962ef6de2f 3d8553c6f37f100b61ca9f219e23cf9ad1889820 Jico Baligod <jico@baligod.com> 1371667034 -0400	commit: rename assets.json to parachute.json
+3d8553c6f37f100b61ca9f219e23cf9ad1889820 f500e4e9d14e5473b03e4be9dd8271c5990e62c8 Chris Carey <chrisc@crowdtap.com> 1372102768 -0400	commit: Adds date variables for test

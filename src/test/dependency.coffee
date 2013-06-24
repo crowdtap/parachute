@@ -2,6 +2,7 @@ Dependency = require('../lib/core/dependency')
 fs         = require('fs')
 expect     = require('expect.js')
 rimraf     = require('rimraf')
+timekeeper = require('timekeeper')
 
 describe 'Dependency', ->
   cwd              = process.cwd()
@@ -126,6 +127,26 @@ describe 'Dependency', ->
       dependency.cache ->
         dependency.copy ->
           expect(fs.existsSync("css/install_test/core.css")).to.be(true)
+          done()
+
+    it 'allows a set of date variable interpolation within parachute.json', (done) ->
+      dependency = new Dependency('../repos/with_variables')
+      dependency.on 'error', (err) -> throw err
+      timekeeper.travel(new Date(2013, 0, 1))
+      dependency.cache ->
+        dependency.copy ->
+          expect(fs.existsSync("css/colors-2013-01-01.css")).to.be(true)
+          expect(fs.existsSync("css/fonts-2013-01-01.css")).to.be(true)
+          done()
+
+    it 'allows a set of date variable interpolation within parachute.json', (done) ->
+      dependency = new Dependency('../repos/with_variables')
+      dependency.on 'error', (err) -> throw err
+      timekeeper.travel(new Date(2013, 11, 31))
+      dependency.cache ->
+        dependency.copy ->
+          expect(fs.existsSync("css/colors-2013-12-31.css")).to.be(true)
+          expect(fs.existsSync("css/fonts-2013-12-31.css")).to.be(true)
           done()
 
     describe 'source parachute.json components option', ->
