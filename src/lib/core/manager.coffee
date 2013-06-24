@@ -1,6 +1,7 @@
 { EventEmitter } = require('events')
 Dependency       = require('./dependency')
 _                = require('../util/lodash-ext')
+template         = require('../util/template')
 exec             = require('child_process').exec
 
 class Manager extends EventEmitter
@@ -50,6 +51,8 @@ class Manager extends EventEmitter
         @emit('error', err)    if err?
         @emit('error', stderr) if stderr?.length
         @emit('data',  stdout) if stdout?.length
+        template('script', { which: scriptName, command: line })
+          .on 'data', @emit.bind(@, 'data')
 
   # Private
 

@@ -232,7 +232,7 @@ describe 'Manager', ->
       manager
         .on 'error', (err) ->
           throw err
-        .on 'data', (data) ->
+        .once 'data', (data) ->
           expect(data.toString()).to.contain(process.env.HOME)
           done()
         .runScript('foo')

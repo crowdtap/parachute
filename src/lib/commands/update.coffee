@@ -4,6 +4,7 @@ Dependency       = require('../core/dependency')
 config           = require('../core/config')
 help             = require('../commands/help')
 nopt             = require('nopt')
+_                = require('../util/lodash-ext')
 
 optionTypes =
   help:   Boolean
@@ -25,6 +26,7 @@ module.exports = (dependencies, options) ->
 
 module.exports.line = (argv) ->
   options = nopt(optionTypes, shorthand, argv)
+  options = _.extend(options, config.options)
   if options.help
     help('update')
   else

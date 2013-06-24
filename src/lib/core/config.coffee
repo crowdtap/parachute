@@ -15,12 +15,13 @@ dependencies = []
 dependencies = dependencies.concat(require(jsonPath).dependencies) if fs.existsSync(jsonPath)
 
 # Scripts
-scripts = []
-scripts = scripts.concat(require(jsonPath).scripts) if fs.existsSync(jsonPath)
+scripts = {}
+scripts = require(jsonPath).scripts if fs.existsSync(jsonPath)
 
 config =
   cacheDir:     cacheDir
   dependencies: dependencies
-  scripts:      scripts
+  options:
+    scripts: scripts
 
 module.exports = config
