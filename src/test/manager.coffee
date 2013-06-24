@@ -174,8 +174,13 @@ describe 'Dependency', ->
       expect(stub2.calledOnce).to.be(true)
       done()
 
-  describe 'xxx #runScript', ->
+  describe '#runScript', ->
     it 'executes the script name', (done) ->
-      console.log '**************************************'
-      console.log require
-      done()
+      manager = new Manager(config.dependencies, scripts: { foo: "pwd" })
+      manager
+        .on 'error', (err) ->
+          throw err
+        .on 'data', (data) ->
+          expect(data.toString()).to.contain(process.env.HOME)
+          done()
+        .runScript('foo')
