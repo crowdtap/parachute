@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.1-beta.9 - 2013-07-15
+
+* Adds support for glob patterns.
+
 ## v0.0.1-beta.8 - 2013-06-24
 
 * Adds `year`, `month`, `day`, and `date` path variables.
