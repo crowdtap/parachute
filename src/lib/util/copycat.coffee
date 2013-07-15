@@ -13,24 +13,22 @@ path   = require('path')
 mkdirp = require('mkdirp')
 
 module.exports.copy = (src, dest, options, cb) ->
-  cb   = options unless cb?
-  srcs = glob.sync(src)
+  cb      = options unless cb?
+  srcs    = glob.sync(src)
+  destDir = @parseDestDir(dest)
 
   if srcs.length > 1 && !@isDirectoryPath(dest)
     throw new Error("#{dest} is not a directory")
 
-  mkdirp.sync @parseDestDir(dest) unless fs.existsSync @parseDestDir(dest)
+  mkdirp.sync(destDir) unless fs.existsSync(destDir)
 
-  # TODO: Call cb at the right time
   tally = 0
   for _src, i in srcs
     throw new Error("#{_src} does not exist") unless fs.existsSync(_src)
-    if @isDirectoryPath(dest)
-      destFilename = path.join @parseDestDir(dest), @parseFilename(_src)
-    else
-      destFilename = dest
+    srcFile = @parseFilename(_src)
+    _dest   = @isDirectoryPath(dest) && path.join(destDir, srcFile) || dest
 
-    ncp _src, destFilename, options, (err) ->
+    ncp _src, _dest, options, (err) ->
       throw err if err
       cb?() if ++tally == srcs.length
 
