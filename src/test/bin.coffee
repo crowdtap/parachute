@@ -34,6 +34,7 @@ describe 'parachute', ->
       expect(status).to.eql(0)
       done()
 
+  # TODO
   #it 'exits with status code 1 if there were errors', (done) ->
     #cp = spawn('node', [binPath], cwd: testDir)
 

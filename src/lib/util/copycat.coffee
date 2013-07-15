@@ -17,14 +17,15 @@ module.exports.copy = (src, dest, options, cb) ->
   srcs    = glob.sync(src)
   destDir = @parseDestDir(dest)
 
-  if srcs.length > 1 && !@isDirectoryPath(dest)
+  if srcs.length == 0
+    throw new Error("no files matching #{src}")
+  else if srcs.length > 1 && !@isDirectoryPath(dest)
     throw new Error("#{dest} is not a directory")
 
   mkdirp.sync(destDir) unless fs.existsSync(destDir)
 
   tally = 0
   for _src, i in srcs
-    throw new Error("#{_src} does not exist") unless fs.existsSync(_src)
     srcFile = @parseFilename(_src)
     _dest   = @isDirectoryPath(dest) && path.join(destDir, srcFile) || dest
 
