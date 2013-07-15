@@ -19,20 +19,18 @@ module.exports.copy = (src, dest, options, cb) ->
   if srcs.length > 1 && !@isDirectoryPath(dest)
     throw new Error("#{dest} is not a directory")
 
-  if @isDirectoryPath(dest)
-    destDir     = dest
-    srcFilename = @parseFilename(src)
-    dest        = path.join(dest, srcFilename)
-  else
-    destDir = @parseDestDir(dest)
-
-  mkdirp.sync destDir unless fs.existsSync(dest)
+  mkdirp.sync @parseDestDir(dest) unless fs.existsSync @parseDestDir(dest)
 
   # TODO: Call cb at the right time
   tally = 0
   for _src, i in srcs
     throw new Error("#{_src} does not exist") unless fs.existsSync(_src)
-    ncp _src, dest, options, (err) ->
+    if @isDirectoryPath(dest)
+      destFilename = path.join @parseDestDir(dest), @parseFilename(_src)
+    else
+      destFilename = dest
+
+    ncp _src, destFilename, options, (err) ->
       throw err if err
       cb?() if ++tally == srcs.length
 
