@@ -40,7 +40,7 @@ module.exports.parseDestDir = (pathString) ->
   if @isDirectoryPath(pathString)
     pathString
   else
-    pathString.split('/').slice(0, -1).join('/')
+    pathString.split('/').slice(0, -1).join('/') + '/'
 
 module.exports.parseFilename = (pathString) ->
   if @isDirectoryPath(pathString) then '' else _.last(pathString.split('/'))
