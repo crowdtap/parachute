@@ -2,7 +2,7 @@
 #
 # ===============================
 
-_ = require('lodash')
+_ = require('lodash/dist/lodash.compat')
 
 _.mixin
   endsWith: (str, suffix) ->
