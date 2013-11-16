@@ -12,16 +12,18 @@ spawn            = require('child_process').spawn
 class Dependency extends EventEmitter
   constructor: (@src, options) ->
     # Recognize git source URL parameters:
-    # [original str, http(s), git@, host, trailing path]
-    gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*(.*)/
+    # [original str, http(s), git@, host, trailing path, treeish]
+    gitRegex     = /(\w+:\/\/)?(.+@)*([\w\d\.]+):?\/*([^#]*)#?(.*)/
     pathSegments = @src.match(gitRegex)
 
     @name       = pathSegments[4].replace('/','-').replace('.git','')
     @cacheDir   = path.join(process.env['HOME'], '.parachute', @name)
     @root       = options?.root || process.cwd()
     @remote     = pathSegments[1]? || pathSegments[2]?
-    @src        = path.resolve(@src) unless @remote
+    @src        = path.resolve(pathSegments[3], pathSegments[4]) unless @remote
     @repo       = gift @cacheDir
+    @treeish    = pathSegments[5] || 'master'
+    @treeish    = "origin/#{@treeish}" if @remote and @treeish isnt 'master'
     @components = options?.components && @parseComponents(options.components)
 
     @ncpOptions =
@@ -33,8 +35,8 @@ class Dependency extends EventEmitter
   cache: (cb) ->
     template('action', { doing: 'caching', what: @src })
       .on 'data', @emit.bind(@, 'data')
-    # TODO: Check if @src is local and exists
-    cp = git(['clone', @src, @cacheDir])
+    # TODO: Test clone remote vs local
+    cp = git(['clone', @src.split('#')[0], @cacheDir])
     cp.on 'exit', (status) =>
       @emit 'cached', status
       cb?(status)
@@ -43,9 +45,14 @@ class Dependency extends EventEmitter
     if @isCached()
       @repo.status (err, status) =>
         if status.clean
-          @copyComponents(cb)
-          template('action', { doing: 'copying', what: @src })
+          template('action', { doing: 'checking out', what: @treeish })
             .on 'data', @emit.bind(@, 'data')
+          git(['checkout', @treeish], cwd: @cacheDir, verbose: false).on 'exit', (gitStatus) =>
+            unless gitStatus is 128
+              @copyComponents(cb)
+              template('action', { doing: 'copying', what: @src })
+                .on 'data', @emit.bind(@, 'data')
+              git(['checkout', 'master'], cwd: @cacheDir, verbose: false)
         else
           @emit 'error', message: 'dependency cache is dirty'
     else
@@ -59,7 +66,7 @@ class Dependency extends EventEmitter
       if status.clean
         template('action', { doing: 'Updating', what: @name })
           .on 'data', @emit.bind(@, 'data')
-        cp = git(['pull', 'origin', 'master'], cwd: @cacheDir)
+        cp = git(['pull'], cwd: @cacheDir)
         cp.on 'exit', (status) =>
           @emit 'updated', status
           cb?()

@@ -1,8 +1,12 @@
 # Changelog
 
+## v0.0.1 - 2013-11-15
+
+* Adds branch/commit/treeish support for dependencies (no tag support yet).
+
 ## v0.0.1-beta.10 - 2013-08-08
 
-* Switch to lodash compatibility build to ensure support for IE8
+* Switch to lodash compatibility build to ensure support for IE8.
 
 ## v0.0.1-beta.9 - 2013-07-15
 

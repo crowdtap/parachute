@@ -1,6 +1,6 @@
 {
   "name":         "parachute",
-  "version":      "0.0.1-beta.10",
+  "version":      "0.0.1",
   "description":  "Simple assets delivery across many applications.",
   "author":       "Jico Baligod <jico@baligod.com>",
   "licenses": [
@@ -31,6 +31,7 @@
     "coffee-script": "1.6.2",
     "expect.js":     "0.2.0",
     "mocha":         "1.8.2",
+    "rewire":        "2.0.0",
     "sinon":         "1.7.2",
     "timekeeper":    "0.0.3"
   },

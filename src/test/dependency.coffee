@@ -1,7 +1,11 @@
-Dependency = require('../lib/core/dependency')
+rewire = require('rewire')
+
+Dependency = rewire('../lib/core/dependency')
 fs         = require('fs')
 expect     = require('expect.js')
 rimraf     = require('rimraf')
+path       = require('path')
+sinon      = require('sinon')
 timekeeper = require('timekeeper')
 
 describe 'Dependency', ->
@@ -29,9 +33,14 @@ describe 'Dependency', ->
     clean(done)
 
   describe 'instance variables', ->
-    it 'sets the source URL', (done) ->
+    it 'sets the source URL when remote', (done) ->
       dependency = new Dependency(remoteDependency)
       expect(dependency.src).to.eql(remoteDependency)
+      done()
+
+    it 'sets the source URL when local', (done) ->
+      dependency = new Dependency('../localDir/project')
+      expect(dependency.src).to.eql(path.resolve('../localDir/project'))
       done()
 
     it 'sets the name of the dependency', (done) ->
@@ -60,6 +69,22 @@ describe 'Dependency', ->
       expect(dependencyLocal.remote).to.be(false)
       done()
 
+    it 'sets treeish to master by default', (done) ->
+      dependency = new Dependency('http://github.com/foo/bar')
+      expect(dependency.treeish).to.eql('master')
+      done()
+
+    it 'sets a treeish', (done) ->
+      commitTreeish  = new Dependency('../some_dir/parachute#bdfbd80')
+      branchTreeish  = new Dependency('../some_dir/parachute#some-branch')
+      remoteCommitTreeish  = new Dependency('https://github.com/crowdtap/parachute.git#bdfbd80')
+      remoteBranchTreeish  = new Dependency('https://github.com/crowdtap/parachute.git#some-branch')
+      expect(commitTreeish.treeish).to.eql('bdfbd80')
+      expect(branchTreeish.treeish).to.eql('some-branch')
+      expect(remoteCommitTreeish.treeish).to.eql('origin/bdfbd80')
+      expect(remoteBranchTreeish.treeish).to.eql('origin/some-branch')
+      done()
+
   describe '#cache', ->
     it 'emits a cached event', (done) ->
       dependency = new Dependency('../repos/without_json')
@@ -68,6 +93,32 @@ describe 'Dependency', ->
         expect(status).to.be(0)
         done()
       dependency.cache()
+
+    it 'clones local source repos into the cache directory', (done) ->
+      src        = '../localDirectory/repo.git#some-branch'
+      dependency = new Dependency(src)
+      gitStub    = sinon.stub().returns(on: -> true)
+      gitOrig    = Dependency.__get__('git')
+      Dependency.__set__(git: gitStub)
+
+      dependency.cache()
+      expect(gitStub.calledWith(['clone', path.resolve(src.split('#')[0]), dependency.cacheDir])).to.be(true)
+
+      Dependency.__set__(git: gitOrig)
+      done()
+
+    it 'clones remote source repos into the cache directory xxx', (done) ->
+      src        = 'https://github.com/user/repo.git#some-branch'
+      dependency = new Dependency(src)
+      gitStub    = sinon.stub().returns(on: -> true)
+      gitOrig    = Dependency.__get__('git')
+      Dependency.__set__(git: gitStub)
+
+      dependency.cache()
+      expect(gitStub.calledWith(['clone', src.split('#')[0], dependency.cacheDir])).to.be(true)
+
+      Dependency.__set__(git: gitOrig)
+      done()
 
     it 'clones the dependency source into the cache directory', (done) ->
       dependency = new Dependency('../repos/without_json')
@@ -120,6 +171,40 @@ describe 'Dependency', ->
         dependency.copy ->
           expect(fs.existsSync("#{process.cwd()}/.git")).to.be(false)
           done()
+
+    it 'checks out the treeish before copying', (done) ->
+      dependency = new Dependency('https://github.com/user/repo.git#some-branch')
+
+      dependency.repo =  { status: -> }
+      sinon.stub(dependency, 'isCached', -> true)
+      sinon.stub(dependency, 'copyComponents', -> true)
+      sinon.stub(dependency.repo, 'status', (callback) -> callback(false, clean: true) )
+
+      gitStub = sinon.stub().returns(on: -> true)
+      gitOrig = Dependency.__get__('git')
+      Dependency.__set__(git: gitStub)
+
+      dependency.copy()
+      expect(gitStub.calledWith(['checkout', 'origin/some-branch'], cwd: dependency.cacheDir, verbose: false)).to.be(true)
+      Dependency.__set__(git: gitOrig)
+      done()
+
+    it 'restores the cache to the master branch after copy', (done) ->
+      dependency = new Dependency('https://github.com/user/repo.git#v1.0.0')
+
+      dependency.repo =  { status: -> }
+      sinon.stub(dependency, 'isCached', -> true)
+      sinon.stub(dependency, 'copyComponents', -> true)
+      sinon.stub(dependency.repo, 'status', (callback) -> callback(false, clean: true) )
+
+      gitStub = sinon.stub().returns(on: (event, cb) -> cb())
+      gitOrig = Dependency.__get__('git')
+      Dependency.__set__(git: gitStub)
+
+      dependency.copy()
+      expect(gitStub.lastCall.calledWith(['checkout', 'master'], cwd: dependency.cacheDir, verbose: false)).to.be(true)
+      Dependency.__set__(git: gitOrig)
+      done()
 
     it 'allows a set of variable interpolation within parachute.json', (done) ->
       dependency = new Dependency('../repos/with_variables')

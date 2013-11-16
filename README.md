@@ -19,11 +19,6 @@ Alternatively, you can add it to your project's `package.json` under _devDepende
 }
 ```
 
-_Note:_ Parachute is currently in beta, with volatile changes published often. If
-you're depending on the _latest_ version, please refer to the
-[CHANGELOG](https://github.com/crowdtap/parachute/blob/master/CHANGELOG.md) for any
-breaking changes.
-
 ## Configuration
 
 Assets should be hosted in a git repository, either locally or more commonly, in a remote repository. 
@@ -41,6 +36,8 @@ Client options:
 * `scripts` - Commands to execute at predefined points in the install process.
   The following are recognized: `preresolve`, `postresolve`, `preinstall`, and
   `postinstall`.
+
+* __Treeish__ - Dependencies can point to a specific commit or branch using the following example syntax: `git@github.com:crowdtap/assets.shared.git#some-branch`.
 
 Example:
 
@@ -133,6 +130,10 @@ To make an update to a test repository:
 2. `mv git .git`
 3. Make your changes and commit as you normally would.
 4. `mv .git git`
+
+## Versioning
+
+This project follows the [Semantic Versioning](http://semver.org/spec/v2.0.0.html) system.
 
 ## License
 

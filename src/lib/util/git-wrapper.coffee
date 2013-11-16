@@ -1,15 +1,23 @@
+_      = require('lodash')
 fs     = require('fs')
 spawn  = require('child_process').spawn
 config = require('../core/config')
 
 module.exports = (args, options) ->
-  options = options || {}
-  options =
-    cwd: options.cwd || process.cwd()
+  options ?= {}
+  defaults =
+    cwd: process.cwd()
+    verbose: true
 
-  child = spawn('git', args, options)
-  child.stderr.on 'data', (data) -> console.log "\n#{data.toString()}"
+  options = _.extend({}, defaults, options)
+
+  child = spawn 'git', args, _.omit(options, 'verbose')
+
   child.on 'exit', (code) ->
-    console.log "git did not exit cleanly!" if code == 128
+    console.log "git did not exit cleanly!" if code is 128
+
+  if options.verbose
+    child.stderr.on 'data', (data) ->
+      console.log "\n#{data.toString()}"
 
   child

@@ -16,7 +16,6 @@ class Manager extends EventEmitter
       options = _.omit(depObj, 'src')
       dependency = new Dependency(depObj.src, options)
       @dependencies.push(dependency)
-      # TODO: Test error emissions for each method?
       dependency
         .on('data',  @emit.bind(@, 'data'))
         .on('error', @emit.bind(@, 'error'))
