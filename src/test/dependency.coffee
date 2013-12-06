@@ -194,7 +194,7 @@ describe 'Dependency', ->
 
       dependency.repo =  { status: -> }
       sinon.stub(dependency, 'isCached', -> true)
-      sinon.stub(dependency, 'copyComponents', -> true)
+      sinon.stub(dependency, 'copyComponents', (cb) -> cb() )
       sinon.stub(dependency.repo, 'status', (callback) -> callback(false, clean: true) )
 
       gitStub = sinon.stub().returns(on: (event, cb) -> cb())

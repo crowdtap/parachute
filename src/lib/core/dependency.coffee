@@ -49,10 +49,11 @@ class Dependency extends EventEmitter
             .on 'data', @emit.bind(@, 'data')
           git(['checkout', @treeish], cwd: @cacheDir, verbose: false).on 'exit', (gitStatus) =>
             unless gitStatus is 128
-              @copyComponents(cb)
-              template('action', { doing: 'copying', what: @src })
-                .on 'data', @emit.bind(@, 'data')
-              git(['checkout', 'master'], cwd: @cacheDir, verbose: false)
+              @copyComponents =>
+                template('action', { doing: 'copying', what: @src })
+                  .on 'data', @emit.bind(@, 'data')
+                git(['checkout', 'master'], cwd: @cacheDir, verbose: false)
+                  .on 'exit', -> cb?()
         else
           @emit 'error', message: 'dependency cache is dirty'
     else

@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.2 - 2013-12-06
+
+* Fixes race condition with restoring cache to master branch after copy.
+
 ## v0.0.1 - 2013-11-15
 
 * Adds branch/commit/treeish support for dependencies (no tag support yet).
