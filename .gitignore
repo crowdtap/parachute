@@ -1,6 +1,6 @@
-/lib
-/test/*.js
-/test/*_test
+v0/lib
+v0/test/*.js
+v0/test/*_test
 /node_modules
 
 .DS_Store
