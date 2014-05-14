@@ -1,12 +1,12 @@
 {
-  "name":         "parachute",
-  "version":      "1.0.0",
-  "description":  "Deliver assets across many applications.",
-  "author":       "Jico Baligod <jico@baligod.com>",
+  "name": "parachute",
+  "version": "1.0.0",
+  "description": "Deliver assets across many applications.",
+  "author": "Jico Baligod <jico@baligod.com>",
   "licenses": [
     {
       "type": "MIT",
-      "url":  "http://github.com/crowdtap/parachute/raw/master/LICENSE"
+      "url": "http://github.com/crowdtap/parachute/raw/master/LICENSE"
     }
   ],
   "engines": {
@@ -14,15 +14,16 @@
   },
   "repository": {
     "type": "git",
-    "url":  "https://github.com/crowdtap/parachute"
+    "url": "https://github.com/crowdtap/parachute"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "chai":   "~1.9.1",
-    "mocha":  "~1.18.2",
+    "chai": "~1.9.1",
+    "gulp": "^3.4.0",
+    "gulp-jshint": "^1.5.5",
+    "mocha": "~1.18.2",
     "rewire": "~2.0.0",
-    "sinon":  "~1.9.1"
+    "sinon": "~1.9.1"
   },
   "main": "lib",
   "bin": {
