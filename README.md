@@ -137,6 +137,6 @@ This project follows the [Semantic Versioning](http://semver.org/spec/v2.0.0.htm
 
 ## License
 
-Copyright (c) 2013 Crowdtap.
+Copyright (c) 2014 Crowdtap.
 
 Licensed under the [MIT License](http://github.com/crowdtap/parachute/raw/master/LICENSE).
