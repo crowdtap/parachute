@@ -16,20 +16,26 @@
     "type": "git",
     "url": "https://github.com/crowdtap/parachute"
   },
-  "dependencies": {},
+  "dependencies": {
+    "q": "~1.0.1"
+  },
   "devDependencies": {
     "chai": "~1.9.1",
     "gulp": "^3.4.0",
     "gulp-jshint": "^1.5.5",
     "mocha": "~1.18.2",
     "rewire": "~2.0.0",
-    "sinon": "~1.9.1"
+    "rimraf": "~2.2.8",
+    "sinon": "~1.9.1",
+    "jshint-stylish": "~0.2.0",
+    "chai-as-promised": "~4.1.1",
+    "ncp": "~0.5.1"
   },
   "main": "lib",
   "bin": {
     "parachute": "bin/parachute"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter dot --timeout 40000"
+    "test": "./node_modules/.bin/mocha --reporter dot"
   }
 }

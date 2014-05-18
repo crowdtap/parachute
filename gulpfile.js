@@ -2,9 +2,13 @@ var gulp   = require('gulp');
 var jshint = require('gulp-jshint');
 
 gulp.task('lint', function() {
-  return gulp.src(['lib/*.js', 'test/*.js'])
+  gulp.src(['lib/*.js', 'test/*.js'])
     .pipe(jshint())
-    .pipe(jshint.reporter('default'));
+    .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('default', ['lint']);
+gulp.task('watch', function() {
+  gulp.watch(['lib/*.js', 'test/*.js'], ['lint']);
+});
+
+gulp.task('default', ['watch']);
