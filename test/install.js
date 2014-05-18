@@ -5,6 +5,7 @@ var chaiAsPromised = require('chai-as-promised');
 var expect         = chai.expect;
 
 var Q      = require('q');
+var _      = require('lodash');
 var fs     = require('fs');
 var ncp    = require('ncp');
 var path   = require('path');
@@ -12,8 +13,16 @@ var rimraf = require('rimraf');
 var rewire = require('rewire');
 
 var gitStub = function(args) {
-  if (args[0] === 'clone') {
-    return Q.nfcall(ncp, args[1], args[2]);
+  var cmd = args[0];
+  if (cmd === 'clone') {
+    var src = args[1];
+    var dest = args[2];
+    if (src.match(/git@/i)) {
+      var repo = _.last(src.split('/'));
+      if (repo.slice(-4) === '.git') repo = repo.slice(0,-4);
+      src = path.join('../repos', repo);
+    }
+    return Q.nfcall(ncp, src, dest);
   }
 };
 
@@ -46,16 +55,18 @@ describe('install', function() {
     });
   });
 
-  describe('caches', function() {
-    it('local host repositories', function() {
+  describe('caching', function() {
+    it('caches asset host repositories', function() {
       var config = {
-        "../repos/no-config-1": true
+        "../repos/no-config-1": true,
+        "git@github.com:example/no-config-1.git": true
       };
 
       fs.writeFileSync('parachute.json', JSON.stringify(config));
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
         expect(fs.existsSync(path.join(cacheDir, 'no-config-1'))).to.be.ok;
+        expect(fs.existsSync(path.join(cacheDir, 'example-no-config-1'))).to.be.ok;
       });
     });
   });
