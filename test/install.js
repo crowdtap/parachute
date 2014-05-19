@@ -17,7 +17,7 @@ var gitStub = function(args) {
   if (cmd === 'clone') {
     var src = args[1];
     var dest = args[2];
-    if (src.match(/git@/i)) {
+    if (src.match(/git@|http/i)) {
       var repo = _.last(src.split('/'));
       if (repo.slice(-4) === '.git') repo = repo.slice(0,-4);
       src = path.join('../repos', repo);
@@ -56,16 +56,32 @@ describe('install', function() {
   });
 
   describe('caching', function() {
-    it('caches asset host repositories', function() {
-      var config = {
-        "../repos/no-config-1": true,
-        "git@github.com:example/no-config-1.git": true
-      };
-
+    it('caches local asset host repositories', function() {
+      var config = { "../repos/no-config-1": true };
       fs.writeFileSync('parachute.json', JSON.stringify(config));
+
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
         expect(fs.existsSync(path.join(cacheDir, 'no-config-1'))).to.be.ok;
+      });
+    });
+
+    it('caches remote ssh host repositories', function() {
+      var config = { "git@github.com:example/no-config-1.git": true };
+      fs.writeFileSync('parachute.json', JSON.stringify(config));
+
+      return parachute.install().then(function() {
+        var cacheDir = path.join(process.env.HOME, './.parachute');
+        expect(fs.existsSync(path.join(cacheDir, 'example-no-config-1'))).to.be.ok;
+      });
+    });
+
+    it('caches remote http host repositories', function() {
+      var config = { "https://github.com/example/no-config-1.git": true };
+      fs.writeFileSync('parachute.json', JSON.stringify(config));
+
+      return parachute.install().then(function() {
+        var cacheDir = path.join(process.env.HOME, './.parachute');
         expect(fs.existsSync(path.join(cacheDir, 'example-no-config-1'))).to.be.ok;
       });
     });
