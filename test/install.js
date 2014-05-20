@@ -94,12 +94,17 @@ describe('#install', function() {
   describe('client configurations', function() {
     describe('simple configuration', function() {
       it('installs assets from hosts', function() {
-        var config = { "../repos/no-config-1": true };
+        var config = {
+          "../repos/no-config-1": true,
+          "../repos/no-config-2": true
+        };
         writeParachuteConfig(config);
 
         return parachute.install().then(function() {
           expect(fs.existsSync('./no-config-1-asset-1.txt')).to.be.ok;
           expect(fs.existsSync('./no-config-1-asset-2.txt')).to.be.ok;
+          expect(fs.existsSync('./no-config-2-asset-1.txt')).to.be.ok;
+          expect(fs.existsSync('./no-config-2-asset-2.txt')).to.be.ok;
         });
       });
     });
