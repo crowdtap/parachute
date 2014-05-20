@@ -37,6 +37,6 @@
     "parachute": "bin/parachute"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter dot"
+    "test": "./node_modules/.bin/mocha --reporter list"
   }
 }

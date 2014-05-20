@@ -26,12 +26,16 @@ var gitStub = function(args) {
   }
 };
 
+var writeParachuteConfig = function(config) {
+  return fs.writeFileSync('parachute.json', JSON.stringify(config));
+};
+
 var parachute = rewire('../lib');
 parachute.__set__('git', gitStub);
 
 chai.use(chaiAsPromised);
 
-describe('install', function() {
+describe('#install', function() {
   var cwd          = process.cwd();
   var testDir      = __dirname + '/tmp';
   process.env.HOME = testDir;
@@ -58,7 +62,7 @@ describe('install', function() {
   describe('caching', function() {
     it('caches local asset host repositories', function() {
       var config = { "../repos/no-config-1": true };
-      fs.writeFileSync('parachute.json', JSON.stringify(config));
+      writeParachuteConfig(config);
 
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
@@ -68,7 +72,7 @@ describe('install', function() {
 
     it('caches remote ssh host repositories', function() {
       var config = { "git@github.com:example/no-config-1.git": true };
-      fs.writeFileSync('parachute.json', JSON.stringify(config));
+      writeParachuteConfig(config);
 
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
@@ -78,7 +82,7 @@ describe('install', function() {
 
     it('caches remote http host repositories', function() {
       var config = { "https://github.com/example/no-config-1.git": true };
-      fs.writeFileSync('parachute.json', JSON.stringify(config));
+      writeParachuteConfig(config);
 
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
@@ -87,14 +91,12 @@ describe('install', function() {
     });
   });
 
-  describe.skip('client configurations', function() {
+  describe('client configurations', function() {
     describe('simple configuration', function() {
       it('installs assets from hosts', function() {
-        var config = {
-          "../repos/no-config-1": true
-        };
+        var config = { "../repos/no-config-1": true };
+        writeParachuteConfig(config);
 
-        fs.writeFileSync('parachute.json', JSON.stringify(config));
         return parachute.install().then(function() {
           expect(fs.existsSync('./no-config-1-asset-1.txt')).to.be.ok;
           expect(fs.existsSync('./no-config-1-asset-2.txt')).to.be.ok;
