@@ -3,6 +3,7 @@
 var chai           = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var expect         = chai.expect;
+chai.use(chaiAsPromised);
 
 var Q      = require('q');
 var _      = require('lodash');
@@ -11,6 +12,7 @@ var ncp    = require('ncp');
 var path   = require('path');
 var rimraf = require('rimraf');
 var rewire = require('rewire');
+
 
 var gitStub = function(args) {
   var cmd = args[0];
@@ -30,10 +32,12 @@ var writeParachuteConfig = function(config) {
   return fs.writeFileSync('parachute.json', JSON.stringify(config));
 };
 
-var parachute = rewire('../lib');
-parachute.__set__('git', gitStub);
+var managerStub = rewire('../lib/Manager');
+managerStub.__set__('git', gitStub);
 
-chai.use(chaiAsPromised);
+var parachute = rewire('../lib');
+parachute.__set__('Manager', managerStub);
+
 
 describe('#install', function() {
   var cwd          = process.cwd();
