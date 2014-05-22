@@ -5,32 +5,13 @@ var chaiAsPromised = require('chai-as-promised');
 var expect         = chai.expect;
 chai.use(chaiAsPromised);
 
-var Q      = require('q');
-var _      = require('lodash');
 var fs     = require('fs');
-var ncp    = require('ncp');
 var path   = require('path');
 var rimraf = require('rimraf');
 var rewire = require('rewire');
 
-
-var gitStub = function(args) {
-  var cmd = args[0];
-  if (cmd === 'clone') {
-    var src = args[1];
-    var dest = args[2];
-    if (src.match(/git@|http/i)) {
-      var repo = _.last(src.split('/'));
-      if (repo.slice(-4) === '.git') repo = repo.slice(0,-4);
-      src = path.join('../repos', repo);
-    }
-    return Q.nfcall(ncp, src, dest);
-  }
-};
-
-var writeParachuteConfig = function(config) {
-  return fs.writeFileSync('parachute.json', JSON.stringify(config));
-};
+var gitStub   = require('./helpers/gitStub');
+var workspace = require('./helpers/workspace');
 
 var managerStub = rewire('../lib/Manager');
 managerStub.__set__('git', gitStub);
@@ -43,6 +24,22 @@ describe('#install', function() {
   var cwd          = process.cwd();
   var testDir      = __dirname + '/tmp';
   process.env.HOME = testDir;
+
+  // Predefined host repos
+  var noConfig1 = {
+    name: 'no-config-1',
+    contents: {
+      'no-config-1-asset-1.txt': 'file',
+      'no-config-1-asset-2.txt': 'file'
+    }
+  };
+  var noConfig2 = {
+    name: 'no-config-2',
+    contents: {
+      'no-config-2-asset-1.txt': 'file',
+      'no-config-2-asset-2.txt': 'file'
+    }
+  };
 
   beforeEach(function(done) {
     rimraf(testDir, function(err) {
@@ -65,8 +62,13 @@ describe('#install', function() {
 
   describe('caching', function() {
     it('caches local asset host repositories', function() {
-      var config = { "../repos/no-config-1": true };
-      writeParachuteConfig(config);
+      var ws = {
+        client: {
+          config: { "./repos/no-config-1": true }
+        },
+        hosts: [ noConfig1 ]
+      };
+      workspace.setup(ws);
 
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
@@ -75,8 +77,13 @@ describe('#install', function() {
     });
 
     it('caches remote ssh host repositories', function() {
-      var config = { "git@github.com:example/no-config-1.git": true };
-      writeParachuteConfig(config);
+      var ws = {
+        client: {
+          config: { "git@github.com:example/no-config-1.git": true }
+        },
+        hosts: [ noConfig1 ]
+      };
+      workspace.setup(ws);
 
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
@@ -85,8 +92,13 @@ describe('#install', function() {
     });
 
     it('caches remote http host repositories', function() {
-      var config = { "https://github.com/example/no-config-1.git": true };
-      writeParachuteConfig(config);
+      var ws = {
+        client: {
+          config: { "https://github.com/example/no-config-1.git": true }
+        },
+        hosts: [ noConfig1 ]
+      };
+      workspace.setup(ws);
 
       return parachute.install().then(function() {
         var cacheDir = path.join(process.env.HOME, './.parachute');
@@ -98,11 +110,16 @@ describe('#install', function() {
   describe('client configurations', function() {
     describe('simple configuration', function() {
       it('installs assets from hosts', function() {
-        var config = {
-          "../repos/no-config-1": true,
-          "../repos/no-config-2": true
+        var ws = {
+          client: {
+            config: {
+              "./repos/no-config-1": true,
+              "./repos/no-config-2": true
+            }
+          },
+          hosts: [ noConfig1, noConfig2 ]
         };
-        writeParachuteConfig(config);
+        workspace.setup(ws);
 
         return parachute.install().then(function() {
           expect(fs.existsSync('./no-config-1-asset-1.txt')).to.be.ok;
