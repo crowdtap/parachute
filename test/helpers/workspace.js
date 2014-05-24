@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var _      = require('lodash');
 var fs     = require('fs');
 var path   = require('path');
 var mkdirp = require('mkdirp');
@@ -34,8 +34,12 @@ module.exports = {
         }
         _.forOwn(host.contents, function(type, name) {
           var itemPath = path.resolve(repoPath, name);
-          if (type === 'file') fs.writeFileSync(itemPath);
-          if (type === 'dir')  fs.mkdirSync(itemPath);
+          if (type === 'dir')  {
+            mkdirp.sync(itemPath);
+          } else if (type === 'file') {
+            mkdirp.sync(path.dirname(itemPath));
+            fs.writeFileSync(itemPath);
+          }
         });
       });
     }

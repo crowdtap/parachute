@@ -1,0 +1,16 @@
+{
+  "noConfig1": {
+    "name": "no-config-1",
+    "contents": {
+      "flannel.png": "file",
+      "paleo.txt":   "file"
+    }
+  },
+  "noConfig2": {
+    "name": "no-config-2",
+    "contents": {
+      "javascripts/brunch.js":  "file",
+      "images/logos/denim.jpg": "file"
+    }
+  }
+}

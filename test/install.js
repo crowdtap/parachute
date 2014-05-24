@@ -5,6 +5,7 @@ var chaiAsPromised = require('chai-as-promised');
 var expect         = chai.expect;
 chai.use(chaiAsPromised);
 
+var _      = require('lodash');
 var fs     = require('fs');
 var path   = require('path');
 var rimraf = require('rimraf');
@@ -19,27 +20,12 @@ managerStub.__set__('git', gitStub);
 var parachute = rewire('../lib');
 parachute.__set__('Manager', managerStub);
 
+var hosts = require('./hosts');
 
 describe('#install', function() {
   var cwd          = process.cwd();
   var testDir      = __dirname + '/tmp';
   process.env.HOME = testDir;
-
-  // Predefined host repos
-  var noConfig1 = {
-    name: 'no-config-1',
-    contents: {
-      'no-config-1-asset-1.txt': 'file',
-      'no-config-1-asset-2.txt': 'file'
-    }
-  };
-  var noConfig2 = {
-    name: 'no-config-2',
-    contents: {
-      'no-config-2-asset-1.txt': 'file',
-      'no-config-2-asset-2.txt': 'file'
-    }
-  };
 
   beforeEach(function(done) {
     rimraf(testDir, function(err) {
@@ -66,7 +52,7 @@ describe('#install', function() {
         client: {
           config: { "./repos/no-config-1": true }
         },
-        hosts: [ noConfig1 ]
+        hosts: [ hosts.noConfig1 ]
       };
       workspace.setup(ws);
 
@@ -81,7 +67,7 @@ describe('#install', function() {
         client: {
           config: { "git@github.com:example/no-config-1.git": true }
         },
-        hosts: [ noConfig1 ]
+        hosts: [ hosts.noConfig1 ]
       };
       workspace.setup(ws);
 
@@ -96,7 +82,7 @@ describe('#install', function() {
         client: {
           config: { "https://github.com/example/no-config-1.git": true }
         },
-        hosts: [ noConfig1 ]
+        hosts: [ hosts.noConfig1 ]
       };
       workspace.setup(ws);
 
@@ -117,15 +103,16 @@ describe('#install', function() {
               "./repos/no-config-2": true
             }
           },
-          hosts: [ noConfig1, noConfig2 ]
+          hosts: [ hosts.noConfig1, hosts.noConfig2 ]
         };
         workspace.setup(ws);
 
         return parachute.install().then(function() {
-          expect(fs.existsSync('./no-config-1-asset-1.txt')).to.be.ok;
-          expect(fs.existsSync('./no-config-1-asset-2.txt')).to.be.ok;
-          expect(fs.existsSync('./no-config-2-asset-1.txt')).to.be.ok;
-          expect(fs.existsSync('./no-config-2-asset-2.txt')).to.be.ok;
+          var host1Items = _.keys(hosts.noConfig1.contents);
+          var host2Items = _.keys(hosts.noConfig2.contents);
+          _.union(host1Items, host2Items).forEach(function(item) {
+            expect(fs.existsSync(path.resolve(item))).to.be.ok;
+          });
         });
       });
     });
