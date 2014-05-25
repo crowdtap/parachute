@@ -112,8 +112,42 @@ describe('#install', function() {
           var host1Items = _.keys(hosts.noConfig1.contents);
           var host2Items = _.keys(hosts.noConfig2.contents);
           _.union(host1Items, host2Items).forEach(function(item) {
-            expect(fs.existsSync(path.resolve(item))).to.be.ok;
+            expect(fs.existsSync(path.resolve(item))).to.eql(true, item + ' not delivered');
           });
+        });
+      });
+
+      it('ignores certain files', function() {
+        var ws = {
+          client: {
+            config: {
+              "./repos/with-ignored-files": true,
+            }
+          },
+          hosts: [ hosts.withIgnoredFiles ]
+        };
+        workspace.setup(ws);
+
+        return parachute.install().then(function() {
+          var hostItems = _.keys(hosts.withIgnoredFiles.contents);
+          var shouldIgnore = _.filter(hostItems, function(item) {
+            return item.match(new RegExp(".git|.*.log$|^\\..*"));
+          });
+          var shouldDeliver = _.difference(hostItems, shouldIgnore, ['.parachute']);
+
+          shouldIgnore.forEach(function(item) {
+            item = path.resolve(item);
+            expect(fs.existsSync(item)).to.eql(false, item + ' should have been ignored');
+          });
+
+          shouldDeliver.forEach(function(item) {
+            item = path.resolve(item);
+            expect(fs.existsSync(item)).to.eql(true, item + ' should have been delivered');
+          });
+
+          // Also check that client parachute.json was not stomped
+          var clientParachute = JSON.parse(fs.readFileSync('./parachute.json'));
+          expect(clientParachute).to.eql(ws.client.config);
         });
       });
 

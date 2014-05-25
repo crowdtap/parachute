@@ -12,5 +12,15 @@
       "javascripts/brunch.js":  "file",
       "images/logos/denim.jpg": "file"
     }
+  },
+  "withIgnoredFiles": {
+    "name": "with-ignored-files",
+    "contents": {
+      "assets/mumblecore.png": "file",
+      ".git":                  "dir",
+      "parachute.json":        "file",
+      ".bowerrc":              "file",
+      "logs/debug.log":        "file"
+    }
   }
 }
