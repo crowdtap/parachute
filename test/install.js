@@ -92,23 +92,6 @@ describe('#install', function() {
       });
     });
 
-    it('uses an existing cache', function() {
-      var ws = {
-        client: {
-          config: { "./repos/no-config-1": true }
-        },
-        hosts: [ hosts.noConfig1 ]
-      };
-      workspace.setup(ws);
-
-      return parachute.install().then(function() {
-        var cacheDir = path.join(process.env.HOME, './.parachute');
-        expect(fs.existsSync(path.join(cacheDir, 'no-config-1'))).to.be.ok;
-        parachute.install().then(function() {
-          expect(true).to.be.ok;
-        });
-      });
-    });
   });
 
   describe('client configurations', function() {
@@ -132,6 +115,25 @@ describe('#install', function() {
             expect(fs.existsSync(path.resolve(item))).to.be.ok;
           });
         });
+      });
+
+      it('continues installation using an existing cache', function() {
+        var ws = {
+          client: {
+            config: { "./repos/no-config-1": true }
+          },
+          hosts: [ hosts.noConfig1 ]
+        };
+        workspace.setup(ws);
+
+        var mngr = new managerStub(ws.client.config);
+        return mngr.cacheDependencies()
+          .then(parachute.install)
+          .then(function() {
+            _.keys(hosts.noConfig1.contents).forEach(function(item) {
+              expect(fs.existsSync(path.resolve(item))).to.be.ok;
+            });
+          });
       });
     });
   });
