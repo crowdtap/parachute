@@ -170,5 +170,33 @@ describe('#install', function() {
           });
       });
     });
+
+    describe('with options', function() {
+      it('allows a root folder to be set', function() {
+        var assetsRoot = 'shared/assets/';
+        var ws = {
+          client: {
+            config: {
+              "./repos/no-config-1": true,
+              "./repos/no-config-2": {
+                "root": assetsRoot
+              }
+            }
+          },
+          hosts: [ hosts.noConfig1, hosts.noConfig2 ]
+        };
+        workspace.setup(ws);
+
+        return parachute.install().then(function() {
+          var host1Items = _.keys(hosts.noConfig1.contents);
+          var host2Items = _.keys(hosts.noConfig2.contents).map(function(item) {
+            return assetsRoot + item;
+          });
+          _.union(host1Items, host2Items).forEach(function(item) {
+            expect(fs.existsSync(path.resolve(item))).to.eql(true, item + ' not delivered');
+          });
+        });
+      });
+    });
   });
 });
