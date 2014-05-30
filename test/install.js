@@ -200,7 +200,7 @@ describe('#install', function() {
 
   describe('host configurations', function() {
     describe('only directive', function() {
-      it('restricts asset delivery to those specified', function() {
+      it('whitelists asset delivery to those specified', function() {
         var ws = {
           client: {
             config: {
@@ -229,6 +229,32 @@ describe('#install', function() {
     });
 
     describe('except directive', function() {
+      it('blacklists asset delivery to those specified', function() {
+        var ws = {
+          client: {
+            config: {
+              "./repos/except-array-config": true
+            }
+          },
+          hosts: [ hosts.exceptArrayConfig ]
+        };
+        workspace.setup(ws);
+
+        return parachute.install().then(function() {
+          var expectedFiles = [
+            'css/shared.css',
+            'images/williamsburg.png',
+            'images/brooklyn.png'
+          ];
+          var unexpectedFiles = [ 'css/not-shared.css', 'javascripts' ];
+          expectedFiles.forEach(function(item) {
+            expect(fs.existsSync(path.resolve(item))).to.eql(true, item + ' not delivered');
+          });
+          unexpectedFiles.forEach(function(item) {
+            expect(fs.existsSync(path.resolve(item))).to.eql(false, item + ' should not have been delivered');
+          });
+        });
+      });
     });
   });
 });
