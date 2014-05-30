@@ -22,5 +22,19 @@
       ".bowerrc":              "file",
       "logs/debug.log":        "file"
     }
+  },
+  "onlyArrayConfig": {
+    "name": "only-array-config",
+    "contents": {
+      "css/shared.css":          "file",
+      "css/not-shared.css":      "file",
+      "images/williamsburg.png": "file",
+      "images/brooklyn.png":     "file",
+      "javascripts/jquery.js":   "file",
+      "javascripts/core.js":     "file"
+    },
+    "config": {
+      "only": [ "css/shared.css", "images/*" ]
+    }
   }
 }

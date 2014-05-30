@@ -22,7 +22,8 @@
     "mkdirp": "~0.5.0",
     "ncp": "~0.5.1",
     "nopt": "~2.2.1",
-    "walk": "~2.3.3"
+    "walk": "~2.3.3",
+    "minimatch": "~0.3.0"
   },
   "devDependencies": {
     "chai": "~1.9.1",
