@@ -214,15 +214,21 @@ describe('#install', function() {
         return parachute.install().then(function() {
           var expectedFiles = [
             'css/shared.css',
-            'images/williamsburg.png',
-            'images/brooklyn.png'
+            'shared/images/williamsburg.png',
+            'shared/images/brooklyn.png'
           ];
-          var unexpectedFiles = [ 'css/not-shared.css', 'javascripts' ];
+          var unexpectedFiles = [
+            'css/not-shared.css',
+             'javascripts'
+          ];
+
           expectedFiles.forEach(function(item) {
-            expect(fs.existsSync(path.resolve(item))).to.eql(true, item + ' not delivered');
+            var errMsg = item + ' not delivered';
+            expect(fs.existsSync(path.resolve(item))).to.eql(true, errMsg);
           });
           unexpectedFiles.forEach(function(item) {
-            expect(fs.existsSync(path.resolve(item))).to.eql(false, item + ' should not have been delivered');
+            var errMsg = item + ' should not have been delivered';
+            expect(fs.existsSync(path.resolve(item))).to.eql(false, errMsg);
           });
         });
       });
@@ -248,10 +254,12 @@ describe('#install', function() {
           ];
           var unexpectedFiles = [ 'css/not-shared.css', 'javascripts' ];
           expectedFiles.forEach(function(item) {
-            expect(fs.existsSync(path.resolve(item))).to.eql(true, item + ' not delivered');
+            var errMsg = item + ' not delivered';
+            expect(fs.existsSync(path.resolve(item))).to.eql(true, errMsg);
           });
           unexpectedFiles.forEach(function(item) {
-            expect(fs.existsSync(path.resolve(item))).to.eql(false, item + ' should not have been delivered');
+            var errMsg = item + ' should not have been delivered';
+            expect(fs.existsSync(path.resolve(item))).to.eql(false, errMsg);
           });
         });
       });

@@ -34,7 +34,10 @@
       "javascripts/core.js":     "file"
     },
     "config": {
-      "only": [ "css/shared.css", "images/*" ]
+      "only": [
+        "css/shared.css",
+        { "images/*": "shared/" }
+      ]
     }
   },
   "exceptArrayConfig": {
@@ -48,7 +51,10 @@
       "javascripts/core.js":          "file"
     },
     "config": {
-      "except": [ "css/not-shared.css", "javascripts/**/*" ]
+      "except": [
+        "css/not-shared.css",
+        "javascripts/**/*"
+      ]
     }
   }
 }
