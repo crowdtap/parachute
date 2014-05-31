@@ -14,8 +14,11 @@ var rewire = require('rewire');
 var gitStub   = require('./helpers/gitStub');
 var workspace = require('./helpers/workspace');
 
+var dependencyStub = rewire('../lib/Dependency');
+dependencyStub.__set__('git', gitStub);
+
 var managerStub = rewire('../lib/Manager');
-managerStub.__set__('git', gitStub);
+managerStub.__set__('Dependency', dependencyStub);
 
 var parachute = rewire('../lib');
 parachute.__set__('Manager', managerStub);
