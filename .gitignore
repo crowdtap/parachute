@@ -2,6 +2,7 @@ v0/lib
 v0/test/*.js
 v0/test/*_test
 /node_modules
+/test/tmp/
 
 .DS_Store
 npm-debug.log

@@ -56,5 +56,24 @@
         "javascripts/**/*"
       ]
     }
+  },
+  "assetGroupsConfig": {
+    "name": "asset-groups-config",
+    "contents": {
+      "run_tests.sh":             "file",
+      "selenium/start":           "file",
+      "selenium/selenium.jar":    "file",
+      "bootstrap/bootstrap.less": "file",
+      "images/bespoke.png":       "file",
+      "images/gastropub.png":     "file",
+      "javascripts/core.js":      "file"
+    },
+    "config": {
+      "groups": {
+        "webdriver": [ "run_tests.sh", "selenium/**" ],
+        "bootstrap": [ { "bootstrap/**": "css/shared/" } ],
+        "images":    [ "images/**" ]
+      }
+    }
   }
 }

@@ -268,4 +268,42 @@ describe('#install', function() {
       });
     });
   });
+
+  describe('asset groups', function() {
+    it('allows for selecting groups of assets', function() {
+      var ws = {
+        client: {
+          config: {
+            "./repos/asset-groups-config": {
+              "groups": [ 'webdriver', 'bootstrap' ]
+            }
+          }
+        },
+        hosts: [ hosts.assetGroupsConfig ]
+      };
+      workspace.setup(ws);
+
+      return parachute.install().then(function() {
+        var expectedFiles = [
+          'run_tests.sh',
+          'selenium/start',
+          'selenium/selenium.jar',
+          'css/shared/bootstrap/bootstrap.less'
+        ];
+        var unexpectedFiles = [
+          'images/bespoke.png',
+          'images/gastropub.png',
+          'javascripts/core.js'
+        ];
+        expectedFiles.forEach(function(item) {
+          var errMsg = item + ' not delivered';
+          expect(fs.existsSync(path.resolve(item))).to.eql(true, errMsg);
+        });
+        unexpectedFiles.forEach(function(item) {
+          var errMsg = item + ' should not have been delivered';
+          expect(fs.existsSync(path.resolve(item))).to.eql(false, errMsg);
+        });
+      });
+    });
+  });
 });
