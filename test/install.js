@@ -94,7 +94,57 @@ describe('#install', function() {
         expect(fs.existsSync(path.join(cacheDir, 'example-no-config-1'))).to.be.ok;
       });
     });
+  });
 
+  // TODO: Better testing of git actions
+  describe('dependency treeish behavior', function() {
+    it('checks out master by default', function() {
+      var ws = {
+        client: {
+          config: {
+            "./repos/no-config-1": true,
+          }
+        },
+        hosts: [ hosts.noConfig1 ]
+      };
+      workspace.setup(ws);
+
+      return parachute.install().then(function() {
+        expect(gitStub(['_HEAD'])).to.eql('master');
+      });
+    });
+
+    it('checks out treeish on local repo', function() {
+      var ws = {
+        client: {
+          config: {
+            "./repos/no-config-1#0b75bb5": true,
+          }
+        },
+        hosts: [ hosts.noConfig1 ]
+      };
+      workspace.setup(ws);
+
+      return parachute.install().then(function() {
+        expect(gitStub(['_HEAD'])).to.eql('0b75bb5');
+      });
+    });
+
+    it('checks out treeish on remote repo', function() {
+      var ws = {
+        client: {
+          config: {
+            "git@github.com:repos/no-config-1#0b75bb5": true,
+          }
+        },
+        hosts: [ hosts.noConfig1 ]
+      };
+      workspace.setup(ws);
+
+      return parachute.install().then(function() {
+        expect(gitStub(['_HEAD'])).to.eql('origin/0b75bb5');
+      });
+    });
   });
 
   describe('simple client configurations', function() {
