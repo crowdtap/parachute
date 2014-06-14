@@ -2,30 +2,34 @@
 
 process.title = 'parachute';
 
-var nopt = require('nopt');
-var path = require('path');
+var path    = require('path');
+var pkg     = require(path.join(__dirname, '..', 'package.json'));
+var program = require('commander');
 
-var pkg = require(path.join(__dirname, '..', 'package.json'));
+var parachute = require('../lib');
+parachute.version = pkg.version;
 
-var knownOpts  = { version: Boolean };
-var shortHands = { 'v': ['--version'] };
-var options    = nopt(knownOpts, shortHands, process.argv, 2);
+program
+  .version(pkg.version)
+  .option('-q, --quiet', 'suppress logging');
 
-var parachute     = require('../lib');
-parachute.version = pkg.version
+program
+  .command('install')
+  .description('install assets from dependencies')
+  .action(run);
 
-if (options.version) return console.log('parachute: ' + pkg.version);
+program.parse(process.argv);
 
-command = options.argv.remain && options.argv.remain.shift();
-if (parachute[command] == undefined) command = 'help';
-
-parachute[command]()
-//  .on('data', function(data) {
-//    if (data) process.stdout.write(data);
-//  })
-//  .on('end', function(data) {
-//    if (data) process.stdout.write(data);
-//  })
-//  .on('error', function(err) {
-//    process.stdout.write(err.message + '\n');
-//  });
+function run(cmd) {
+  var opts = cmd.parent;
+  parachute[cmd._name](opts)
+    .then(function(result) {
+      if (typeof result !== 'undefined') process.stdout.write(result);
+    }, function(err) {
+      if (typeof err !== 'undefined') process.stderr.write(err.message + '\n');
+    }, function(update) {
+      if (!opts.quiet && typeof update !== 'undefined' && update.value) {
+        process.stdout.write(update.value);
+      }
+    });
+}

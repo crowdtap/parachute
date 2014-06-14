@@ -110,7 +110,7 @@ describe('#install', function() {
       workspace.setup(ws);
 
       return parachute.install().then(function() {
-        expect(gitStub(['_HEAD'])).to.eql('master');
+        expect(gitStub(null, ['_HEAD'])).to.eql('master');
       });
     });
 
@@ -126,7 +126,7 @@ describe('#install', function() {
       workspace.setup(ws);
 
       return parachute.install().then(function() {
-        expect(gitStub(['_HEAD'])).to.eql('0b75bb5');
+        expect(gitStub(null, ['_HEAD'])).to.eql('0b75bb5');
       });
     });
 
@@ -142,7 +142,7 @@ describe('#install', function() {
       workspace.setup(ws);
 
       return parachute.install().then(function() {
-        expect(gitStub(['_HEAD'])).to.eql('origin/0b75bb5');
+        expect(gitStub(null, ['_HEAD'])).to.eql('origin/0b75bb5');
       });
     });
   });

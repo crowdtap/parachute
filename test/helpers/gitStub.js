@@ -6,8 +6,8 @@ var path = require('path');
 
 var HEAD = 'master';
 
-module.exports = function(args) {
-  var cmd      = args[0];
+module.exports = function(repo, args) {
+  var cmd = args[0];
   var gitStub  = {};
 
   gitStub.clean = function() {
