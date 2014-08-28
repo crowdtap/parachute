@@ -43,6 +43,6 @@
     "parachute": "bin/parachute"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter list"
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --reporter list"
   }
 }

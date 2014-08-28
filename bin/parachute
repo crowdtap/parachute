@@ -9,9 +9,7 @@ var program = require('commander');
 var parachute = require('../lib');
 parachute.version = pkg.version;
 
-program
-  .version(pkg.version)
-  .option('-q, --quiet', 'suppress logging');
+program.version(pkg.version);
 
 program
   .command('install')
