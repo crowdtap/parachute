@@ -267,8 +267,8 @@ describe('#install', function() {
         return parachute.install().then(function() {
           var expectedFiles = [
             'css/shared.css',
-            'shared/images/williamsburg.png',
-            'shared/images/brooklyn.png'
+            'shared/williamsburg.png',
+            'shared/brooklyn.png'
           ];
           var unexpectedFiles = [
             'css/not-shared.css',
@@ -325,7 +325,7 @@ describe('#install', function() {
         client: {
           config: {
             "./repos/asset-groups-config": {
-              "groups": [ 'webdriver', 'bootstrap' ]
+              "groups": [ 'webdriver', 'bootstrap', 'scripts' ]
             }
           }
         },
@@ -336,9 +336,10 @@ describe('#install', function() {
       return parachute.install().then(function() {
         var expectedFiles = [
           'run_tests.sh',
-          'selenium/start',
-          'selenium/selenium.jar',
-          'css/shared/bootstrap/bootstrap.less'
+          'testing/start',
+          'testing/scripts/selenium.jar',
+          'css/shared/bootstrap.less',
+          'scripts/some_script.sh'
         ];
         var unexpectedFiles = [
           'images/bespoke.png',
@@ -346,8 +347,11 @@ describe('#install', function() {
           'javascripts/core.js'
         ];
         expectedFiles.forEach(function(item) {
-          var errMsg = item + ' not delivered';
-          expect(fs.existsSync(path.resolve(item))).to.eql(true, errMsg);
+          // TODO: Do this file exists and is file type check for all tests
+          var errMissingMsg = item + ' not delivered';
+          var errNotFileMsg = item + ' is not a file';
+          expect(fs.existsSync(path.resolve(item))).to.eql(true, errMissingMsg);
+          expect(fs.lstatSync(path.resolve(item)).isFile()).to.eql(true, errNotFileMsg);
         });
         unexpectedFiles.forEach(function(item) {
           var errMsg = item + ' should not have been delivered';
