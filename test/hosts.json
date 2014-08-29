@@ -1,0 +1,81 @@
+{
+  "noConfig1": {
+    "name": "no-config-1",
+    "contents": {
+      "flannel.png": "file",
+      "paleo.txt":   "file"
+    }
+  },
+  "noConfig2": {
+    "name": "no-config-2",
+    "contents": {
+      "javascripts/brunch.js":  "file",
+      "images/logos/denim.jpg": "file"
+    }
+  },
+  "withIgnoredFiles": {
+    "name": "with-ignored-files",
+    "contents": {
+      "assets/mumblecore.png": "file",
+      ".git":                  "dir",
+      "parachute.json":        "file",
+      ".bowerrc":              "file",
+      "logs/debug.log":        "file"
+    }
+  },
+  "onlyArrayConfig": {
+    "name": "only-array-config",
+    "contents": {
+      "css/shared.css":          "file",
+      "css/not-shared.css":      "file",
+      "images/williamsburg.png": "file",
+      "images/brooklyn.png":     "file",
+      "javascripts/jquery.js":   "file",
+      "javascripts/core.js":     "file"
+    },
+    "config": {
+      "only": [
+        "css/shared.css",
+        { "images/*": "shared/" }
+      ]
+    }
+  },
+  "exceptArrayConfig": {
+    "name": "except-array-config",
+    "contents": {
+      "css/shared.css":               "file",
+      "css/not-shared.css":           "file",
+      "images/williamsburg.png":      "file",
+      "images/brooklyn.png":          "file",
+      "javascripts/jquery/jquery.js": "file",
+      "javascripts/core.js":          "file"
+    },
+    "config": {
+      "except": [
+        "css/not-shared.css",
+        "javascripts/**/*"
+      ]
+    }
+  },
+  "assetGroupsConfig": {
+    "name": "asset-groups-config",
+    "contents": {
+      "scripts/some_script.sh":        "file",
+      "run_tests.sh":                  "file",
+      "selenium/start":                "file",
+      "selenium/scripts/selenium.jar": "file",
+      "bootstrap/bootstrap.less":      "file",
+      "images/bespoke.png":            "file",
+      "images/gastropub.png":          "file",
+      "javascripts/core.js":           "file"
+    },
+    "config": {
+      "groups": {
+        "webdriver": [ "run_tests.sh", { "selenium/**/*": "testing/" } ],
+        "bootstrap": [ { "bootstrap/**": "css/shared/" } ],
+        "images":    [ "images/**" ],
+        "scripts":   [ { "scripts/some_script.sh": "scripts/" } ]
+      }
+    }
+  }
+}

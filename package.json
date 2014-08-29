@@ -1,48 +1,48 @@
 {
-  "name":         "parachute",
-  "version":      "0.0.2",
-  "description":  "Simple assets delivery across many applications.",
-  "author":       "Jico Baligod <jico@baligod.com>",
+  "name": "parachute",
+  "version": "1.0.0-beta.1",
+  "description": "Deliver assets across many applications.",
+  "author": "Jico Baligod <jico@baligod.com>",
   "licenses": [
     {
       "type": "MIT",
-      "url":  "http://github.com/crowdtap/parachute/raw/master/LICENSE"
+      "url": "http://github.com/crowdtap/parachute/raw/master/LICENSE"
     }
   ],
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=0.10.0"
   },
   "repository": {
     "type": "git",
-    "url":  "https://github.com/crowdtap/parachute"
+    "url": "https://github.com/crowdtap/parachute"
   },
   "dependencies": {
-    "colors":    "0.6.0-1",
-    "gift":      "0.0.5",
-    "glob":      "3.2.3",
-    "hogan.js":  "2.0.0",
-    "lodash":    "1.0.1",
-    "mkdirp":    "0.3.5",
-    "ncp":       "0.4.2",
-    "nopt":      "2.1.1",
-    "rimraf":    "2.1.4"
+    "q": "~1.0.1",
+    "lodash": "~2.4.1",
+    "mkdirp": "~0.5.0",
+    "ncp": "~0.5.1",
+    "walk": "~2.3.3",
+    "minimatch": "~0.3.0",
+    "commander": "~2.2.0",
+    "chalk": "~0.4.0",
+    "mout": "~0.9.1"
   },
   "devDependencies": {
-    "coffee-script": "1.6.2",
-    "expect.js":     "0.2.0",
-    "mocha":         "1.8.2",
-    "rewire":        "2.0.0",
-    "sinon":         "1.7.2",
-    "timekeeper":    "0.0.3"
+    "chai": "~1.9.1",
+    "gulp": "^3.4.0",
+    "gulp-jshint": "^1.5.5",
+    "mocha": "~1.18.2",
+    "rewire": "~2.0.0",
+    "rimraf": "~2.2.8",
+    "sinon": "~1.9.1",
+    "jshint-stylish": "~0.2.0",
+    "chai-as-promised": "~4.1.1"
   },
   "main": "lib",
   "bin": {
     "parachute": "bin/parachute"
   },
   "scripts": {
-    "compile":  "./node_modules/.bin/coffee -bo . src",
-    "pretest":  "bash scripts/prepare_test_repos.sh && rm -rf test/*.js && ./node_modules/.bin/coffee -bo . src",
-    "test":     "./node_modules/.bin/mocha --reporter dot --timeout 40000",
-    "watch":    "./node_modules/.bin/coffee -wbo . src"
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --reporter list"
   }
 }

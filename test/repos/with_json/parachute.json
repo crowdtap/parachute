@@ -1,8 +1,0 @@
-{
-  "components": [
-    {
-      "src":  "css/core.css",
-      "dest": "css/shared/core.css"
-    }
-  ]
-}
