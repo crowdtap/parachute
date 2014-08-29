@@ -2,6 +2,10 @@
 
 A simple utility for managing shared assets across many applications. 
 
+__Below are the docs for v0.x.x.__
+
+__v1.x.x docs are still a work in progress. Feel free to check out the tests for examples.__
+
 ## Installation
 
 Parachute is a [Node](http://nodejs.org/) module available through
