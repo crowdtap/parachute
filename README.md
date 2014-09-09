@@ -1,6 +1,8 @@
 # Parachute [![Build Status](https://travis-ci.org/crowdtap/parachute.png)](https://travis-ci.org/crowdtap/parachute)
 
-A simple utility for managing shared assets across many applications. 
+A simple utility for managing shared assets across many applications.
+
+Requires Node >=0.10 and Git >=1.8.5
 
 __Below are the docs for v0.x.x.__
 

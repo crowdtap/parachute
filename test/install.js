@@ -229,7 +229,12 @@ describe('#install', function() {
       var ws = {
         client: {
           config: {
-            "./repos/no-config-1": true,
+            "./repos/no-config-1": {
+              root: assetsRoot,
+              only: [
+                { "flannel.png": "bar/" }
+              ]
+            },
             "./repos/no-config-2": {
               "root": assetsRoot
             }
@@ -240,7 +245,7 @@ describe('#install', function() {
       workspace.setup(ws);
 
       return parachute.install().then(function() {
-        var host1Items = _.keys(hosts.noConfig1.contents);
+        var host1Items = [ assetsRoot + 'bar/flannel.png' ];
         var host2Items = _.keys(hosts.noConfig2.contents).map(function(item) {
           return assetsRoot + item;
         });
@@ -356,6 +361,46 @@ describe('#install', function() {
         unexpectedFiles.forEach(function(item) {
           var errMsg = item + ' should not have been delivered';
           expect(fs.existsSync(path.resolve(item))).to.eql(false, errMsg);
+        });
+      });
+    });
+  });
+
+  describe('path combinations', function() {
+    it('delivers assets with expected paths', function() {
+      var ws = {
+        client: {
+          config: {
+            "./repos/paths-combinations": true
+          }
+        },
+        hosts: [ hosts.pathsCombinations ]
+      };
+      workspace.setup(ws);
+
+      return parachute.install().then(function() {
+        var expectedFiles = [
+          'singleFile1.txt',
+          'nested/file1.txt',
+          'deliverAllDir/nestedFile1.txt',
+          'deliverAllDir/nestedFile2.txt',
+          'globbedFile1.txt',
+          'subDir/globbedFile2.txt',
+          'shared/fileToDir.txt',
+          'renamedFile.txt',
+          'shared/renamedUnderDir.txt',
+          'shared/nestedRenamedFile.txt',
+          'shared/nestedFileUnderDir.txt',
+          'globbed/file1.txt',
+          'globbed/file2.txt',
+          'globbedStructure/foo1.txt',
+          'globbedStructure/subDir/foo2.txt'
+        ];
+        expectedFiles.forEach(function(item) {
+          var errMissingMsg = item + ' not delivered';
+          var errNotFileMsg = item + ' is not a file';
+          expect(fs.existsSync(path.resolve(item))).to.eql(true, errMissingMsg);
+          expect(fs.lstatSync(path.resolve(item)).isFile()).to.eql(true, errNotFileMsg);
         });
       });
     });

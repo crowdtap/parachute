@@ -77,5 +77,40 @@
         "scripts":   [ { "scripts/some_script.sh": "scripts/" } ]
       }
     }
+  },
+  "pathsCombinations": {
+    "name": "paths-combinations",
+    "contents": {
+      "singleFile1.txt":                              "file",
+      "nested/file1.txt":                             "file",
+      "deliverAllDir/nestedFile1.txt":                "file",
+      "deliverAllDir/nestedFile2.txt":                "file",
+      "deliverWithStructure/globbedFile1.txt":        "file",
+      "deliverWithStructure/subDir/globbedFile2.txt": "file",
+      "fileToDir.txt":                                "file",
+      "fileToRename.txt":                             "file",
+      "fileToRenameUnderDir.txt":                     "file",
+      "aDirectory/nestedFileToRename.txt":            "file",
+      "aDirectory/nestedFileUnderDir.txt":            "file",
+      "deliverAllUnderDir/file1.txt":                 "file",
+      "deliverAllUnderDir/file2.txt":                 "file",
+      "deliverWithStructureUnderDir/foo1.txt":        "file",
+      "deliverWithStructureUnderDir/subDir/foo2.txt": "file"
+    },
+    "config": {
+      "only": [
+        "singleFile1.txt",
+        "nested/file1.txt",
+        "deliverAllDir/*",
+        "deliverWithStructure/**/*",
+        { "fileToDir.txt": "shared/" },
+        { "fileToRename.txt": "renamedFile.txt" },
+        { "fileToRenameUnderDir.txt": "shared/renamedUnderDir.txt" },
+        { "aDirectory/nestedFileToRename.txt": "shared/nestedRenamedFile.txt" },
+        { "aDirectory/nestedFileUnderDir.txt": "shared/" },
+        { "deliverAllUnderDir/*": "globbed/" },
+        { "deliverWithStructureUnderDir/**/*": "globbedStructure/" }
+      ]
+    }
   }
 }
